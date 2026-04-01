@@ -17,5 +17,5 @@ public interface ISport {
     IPlayer createPlayer(String name, String position);
     ITeam createTeam(String name, String logoId);
     IMatch createMatch(ITeam home, ITeam away);
-    ITrainingSession creatıneTraining(ITeam team);
+    ITrainingSession createTraining(ITeam team);
 }
