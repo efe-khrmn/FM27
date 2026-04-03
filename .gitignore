@@ -8,6 +8,8 @@ target/
 .idea/jarRepositories.xml
 .idea/compiler.xml
 .idea/libraries/
+.idea/misc.xml
+.idea/encodings.xml
 *.iws
 *.iml
 *.ipr
@@ -26,8 +28,7 @@ target/
 /nbbuild/
 /dist/
 /nbdist/
-/.nb-gradle/
-build/
+.build/
 !**/src/main/**/build/
 !**/src/test/**/build/
 
