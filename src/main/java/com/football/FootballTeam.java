@@ -1,0 +1,41 @@
+package com.football;
+
+import com.abstracts.AbstractTeam;
+import com.interfaces.ICoach;
+import com.interfaces.IPlayer;
+
+import java.util.List;
+
+public class FootballTeam extends AbstractTeam {
+
+    private boolean playerManaged;
+
+    public FootballTeam(String name, String logoId, boolean playerManaged) {
+        super(name, logoId);
+        this.playerManaged = playerManaged;
+    }
+
+    public boolean isPlayerManaged() { return playerManaged; }
+
+    public void addPlayer(IPlayer player) { squad.add(player); }
+
+    public void addCoach(ICoach coach) { coaches.add(coach); }
+
+    @Override
+    public void setStartingLineup(List<IPlayer> players) {
+        if (players.size() != 11) {
+            throw new IllegalArgumentException("Starting lineup must have exactly 11 players.");
+        }
+        boolean hasGK = false;
+        for (IPlayer p : players) {
+            if (p.getPosition().equals("GK")) {
+                hasGK = true;
+                break;
+            }
+        }
+        if (!hasGK) {
+            throw new IllegalArgumentException("Starting lineup must include a goalkeeper.");
+        }
+        this.startingLineup = players;
+    }
+}

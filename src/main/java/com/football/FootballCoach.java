@@ -35,8 +35,6 @@ public class FootballCoach implements ICoach {
         return isHeadCoach;
     }
 
-    // Buradaki return kısmını sonrasında düzelt
-
     @Override
     public List<String> getSpecializations() {
         return specializations;
