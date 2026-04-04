@@ -81,9 +81,10 @@ public class FootballSport extends AbstractSport implements ISport {
 
     @Override
     public IPlayer createPlayer(String name, String position) {
-        int age = 18 + random.nextInt(18);
+        int age = 18 + random.nextInt(22);
         int attack;
         int defense;
+        int number = 1 + random.nextInt(99);
 
         if (position.equals("GK")) {
             attack = 5 + random.nextInt(21);
@@ -92,7 +93,8 @@ public class FootballSport extends AbstractSport implements ISport {
             attack = 40 + random.nextInt(46);
             defense = 40 + random.nextInt(46);
         }
-        return new FootballPlayer(name, playerNumberCounter++, age, position, attack, defense);
+        playerNumberCounter++;
+        return new FootballPlayer(name, number,age, position, attack, defense);
     }
 
     @Override
@@ -112,5 +114,9 @@ public class FootballSport extends AbstractSport implements ISport {
 
     public void resetPlayerNumberCounter() {
         this.playerNumberCounter = 1;
+    }
+
+    public int getPlayerNumber() {
+        return playerNumberCounter;
     }
 }
