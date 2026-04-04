@@ -14,6 +14,9 @@ public class FootballTeam extends AbstractTeam {
         super(name, logoId);
         this.playerManaged = playerManaged;
     }
+    public FootballTeam(String name, String logoId) {
+        super(name, logoId);
+    }
 
     public boolean isPlayerManaged() { return playerManaged; }
 
