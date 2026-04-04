@@ -7,7 +7,7 @@ import java.util.Comparator;
 import java.util.Random;
 
 public class FootballStandingsRules implements IStandingsRules {
-
+    public String düzeltme;
     @Override
     public int getPointsForWin() { return 3; }
 
