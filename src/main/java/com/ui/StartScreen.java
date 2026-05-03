@@ -69,7 +69,7 @@ public class StartScreen {
         loadGameBtn.setOnAction(e -> loadGame());
 
         // Version label
-        Label version = new Label("Karsiyaka Seagulls — OOP Project");
+        Label version = new Label("©Karsiyaka Seagulls");
         version.setStyle("-fx-font-size: 12px; -fx-text-fill: #555555;");
 
         center.getChildren().addAll(selectLabel, sportBox, newGameBtn, loadGameBtn, version);
@@ -142,11 +142,11 @@ public class StartScreen {
         ISport sport = SportFactory.create(sportName);
         League league = new League(sport);
 
-        // generate 10 teams
+        // generate 12 teams
         String[] teamNames = {
-                "Karsiyaka Seagulls", "Bornova FC", "Buca United", "Konak City",
-                "Bayrakli Sports", "Cigli Athletic", "Gaziemir FC", "Narlidere SC",
-                "Balcova United", "Karsiyaka Rivals"
+                "Karsiyaka Seagulls", "Spartak Bornova", "Olimpik Buca", "Konak City",
+                "Bayrakli United", "Bostanli Athletic", "Gaziemir FC", "Narlidere Saint Germain",
+                "Balcova Idman Yurdu", "Goztepe Eagles", "Karabaglar Rovers", "Menderes Wanderers"
         };
 
         Random random = new Random();
