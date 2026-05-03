@@ -3,7 +3,7 @@ package com.engine;
 import java.io.*;
 
 public class SaveManager {
-
+    private static final long serialVersionUID = 1L;
     private static final String SAVE_FILE = "savegame.dat";
 
     public static void save() throws IOException {

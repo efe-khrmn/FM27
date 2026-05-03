@@ -9,12 +9,13 @@ import com.interfaces.ITrainingSession;
 
 import com.interfaces.IStandingsRules;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
-public class FootballSport extends AbstractSport implements ISport {
-
+public class FootballSport extends AbstractSport implements ISport, Serializable {
+    private static final long serialVersionUID = 1L;
     private final IStandingsRules standingsRules = new FootballStandingsRules();
     private final Random random = new Random();
     private int playerNumberCounter = 1;

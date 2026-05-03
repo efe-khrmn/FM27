@@ -10,7 +10,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public abstract class AbstractTeam implements ITeam {
-
+    private static final long serialVersionUID = 1L;
     protected String name;
     protected String logoId;
     protected List<IPlayer> squad;

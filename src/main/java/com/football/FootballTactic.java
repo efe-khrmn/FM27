@@ -3,13 +3,14 @@ package com.football;
 import com.interfaces.ISport;
 import com.interfaces.ITactic;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class FootballTactic implements ITactic {
-
+public class FootballTactic implements ITactic, Serializable {
+    private static final long serialVersionUID = 1L;
     private String tacticName;
     private Map<String, String> parameters;
 

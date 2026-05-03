@@ -4,7 +4,7 @@ import com.interfaces.IPlayer;
 import java.util.Map;
 
 public abstract class AbstractPlayer implements IPlayer {
-
+    private static final long serialVersionUID = 1L;
     protected String name;
     protected int number;
     protected int age;

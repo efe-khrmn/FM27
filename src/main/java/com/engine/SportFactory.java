@@ -5,6 +5,7 @@ import com.interfaces.ISport;
 import com.volleyball.VolleyballSport;
 
 public class SportFactory {
+    private static final long serialVersionUID = 1L;
 
     public static ISport create(String sportName) {
         if (sportName == null) {

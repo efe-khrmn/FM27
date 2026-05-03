@@ -1,7 +1,7 @@
 package com.engine;
 
 public class MatchScore {
-
+    private static final long serialVersionUID = 1L;
     private int homeScore;
     private int awayScore;
 

@@ -1,11 +1,13 @@
 package com.engine;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
-public final class SeasonResult {
+public final class SeasonResult implements Serializable {
+    private static final long serialVersionUID = 1L;
     private final List<TeamStanding> finalStandings;
 
     public SeasonResult(List<TeamStanding> finalStandings) {

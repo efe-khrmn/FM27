@@ -3,11 +3,12 @@ package com.volleyball;
 import com.engine.TeamStanding;
 import com.interfaces.IStandingsRules;
 
+import java.io.Serializable;
 import java.util.Comparator;
 import java.util.Random;
 
-public class VolleyballStandingsRules implements IStandingsRules {
-
+public class VolleyballStandingsRules implements IStandingsRules, Serializable {
+    private static final long serialVersionUID = 1L;
     @Override
     public int getPointsForWin() { return 3; }  // 3-0 or 3-1 win
 

@@ -5,10 +5,11 @@ import com.interfaces.ICoach;
 import com.interfaces.IPlayer;
 import com.interfaces.ITactic;
 
+import java.io.Serializable;
 import java.util.List;
 
-public class VolleyballTeam extends AbstractTeam {
-
+public class VolleyballTeam extends AbstractTeam implements Serializable {
+    private static final long serialVersionUID = 1L;
     private boolean playerManaged;
 
     public VolleyballTeam(String name, String logoId, boolean playerManaged) {

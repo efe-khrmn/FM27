@@ -3,11 +3,12 @@ import com.abstracts.AbstractMatch;
 import com.interfaces.IPlayer;
 import com.interfaces.ITeam;
 
+import java.io.Serializable;
 import java.util.List;
 import java.util.Random;
 
-public class FootballMatch extends AbstractMatch {
-
+public class FootballMatch extends AbstractMatch implements Serializable {
+    private static final long serialVersionUID = 1L;
     private int homeScore;
     private int awayScore;
     private static final int TOTAL_SEGMENTS = 2;

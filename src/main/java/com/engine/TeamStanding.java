@@ -2,8 +2,10 @@ package com.engine;
 
 import com.interfaces.ITeam;
 
-public class TeamStanding {
+import java.io.Serializable;
 
+public class TeamStanding implements Serializable {
+    private static final long serialVersionUID = 1L;
     private ITeam team;
     private int played;
     private int won;

@@ -5,11 +5,12 @@ import com.interfaces.IPlayer;
 import com.interfaces.ITeam;
 import com.interfaces.ITrainingSession;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-public class FootballTraining implements ITrainingSession {
-
+public class FootballTraining implements ITrainingSession, Serializable {
+    private static final long serialVersionUID = 1L;
     private ITeam team;
     private List<Object> results;
     private static final List<String> TRAINING_TYPES = new ArrayList<>();

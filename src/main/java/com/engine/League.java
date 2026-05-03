@@ -3,11 +3,12 @@ package com.engine;
 import com.interfaces.ISport;
 import com.interfaces.ITeam;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-public class League {
-
+public class League implements Serializable {
+    private static final long serialVersionUID = 1L;
     private ISport sport;
     private List<ITeam> teams;
     private Schedule schedule;

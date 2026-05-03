@@ -3,11 +3,13 @@ package com.football;
 import com.engine.TeamStanding;
 import com.interfaces.IStandingsRules;
 
+import java.io.Serializable;
 import java.util.Comparator;
 import java.util.Random;
 
-public class FootballStandingsRules implements IStandingsRules {
-    public String düzeltme;
+public class FootballStandingsRules implements IStandingsRules, Serializable {
+    private static final long serialVersionUID = 1L;
+
     @Override
     public int getPointsForWin() { return 3; }
 

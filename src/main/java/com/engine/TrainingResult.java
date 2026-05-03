@@ -3,7 +3,7 @@ package com.engine;
 import com.interfaces.IPlayer;
 
 public class TrainingResult {
-
+    private static final long serialVersionUID = 1L;
     private IPlayer player;
     private int attackXPGained;
     private int defenseXPGained;

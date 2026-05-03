@@ -3,12 +3,13 @@ package com.volleyball;
 import com.abstracts.AbstractSport;
 import com.interfaces.*;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
-public class VolleyballSport extends AbstractSport {
-
+public class VolleyballSport extends AbstractSport implements Serializable {
+    private static final long serialVersionUID = 1L;
     private static final List<String> POSITIONS = new ArrayList<>();
     private static final List<String> OVERALL_TYPES = new ArrayList<>();
 

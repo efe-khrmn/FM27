@@ -2,8 +2,10 @@ package com.engine;
 
 import com.interfaces.ITeam;
 
-public class Fixture {
+import java.io.Serializable;
 
+public class Fixture implements Serializable {
+    private static final long serialVersionUID = 1L;
     private ITeam homeTeam;
     private ITeam awayTeam;
     private int week;

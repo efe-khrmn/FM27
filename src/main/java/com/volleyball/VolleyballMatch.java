@@ -4,11 +4,12 @@ import com.abstracts.AbstractMatch;
 import com.interfaces.IPlayer;
 import com.interfaces.ITeam;
 
+import java.io.Serializable;
 import java.util.List;
 import java.util.Random;
 
-public class VolleyballMatch extends AbstractMatch {
-
+public class VolleyballMatch extends AbstractMatch implements Serializable {
+    private static final long serialVersionUID = 1L;
     private int homeSetsWon;
     private int awaySetsWon;
     private int homeCurrentSetPoints;

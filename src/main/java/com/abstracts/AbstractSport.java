@@ -4,7 +4,7 @@ import com.interfaces.*;
 import java.util.List;
 
 public abstract class AbstractSport implements ISport {
-
+    private static final long serialVersionUID = 1L;
     @Override
     public abstract String getSportName();
 

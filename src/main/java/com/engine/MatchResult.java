@@ -4,7 +4,7 @@ import com.interfaces.ITeam;
 import java.util.List;
 
 public class MatchResult {
-
+    private static final long serialVersionUID = 1L;
     private MatchScore score;
     private ITeam winner;
     private ITeam homeTeam;

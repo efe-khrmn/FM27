@@ -3,11 +3,12 @@ package com.football;
 import com.abstracts.AbstractPlayer;
 import com.interfaces.IPlayer;
 
+import java.io.Serializable;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-public class FootballPlayer extends AbstractPlayer implements IPlayer {
-
+public class FootballPlayer extends AbstractPlayer implements IPlayer, Serializable {
+    private static final long serialVersionUID = 1L;
     private Map<String, Integer> overalls;
     private int attackXP;
     private int defenseXP;

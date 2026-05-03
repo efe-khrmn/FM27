@@ -4,10 +4,11 @@ import com.abstracts.AbstractTeam;
 import com.interfaces.ICoach;
 import com.interfaces.IPlayer;
 
+import java.io.Serializable;
 import java.util.List;
 
-public class FootballTeam extends AbstractTeam {
-
+public class FootballTeam extends AbstractTeam implements Serializable {
+    private static final long serialVersionUID = 1L;
     private boolean playerManaged;
 
     public FootballTeam(String name, String logoId, boolean playerManaged) {

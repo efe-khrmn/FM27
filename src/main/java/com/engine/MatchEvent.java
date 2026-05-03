@@ -4,7 +4,7 @@ import com.interfaces.IPlayer;
 import com.interfaces.ITeam;
 
 public class MatchEvent {
-
+    private static final long serialVersionUID = 1L;
     public enum EventType {
         GOAL,
         INJURY,

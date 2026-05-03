@@ -4,6 +4,7 @@ import com.interfaces.*;
 import java.util.*;
 
 public abstract class AbstractMatch implements IMatch {
+    private static final long serialVersionUID = 1L;
     protected ITeam homeTeam;
     protected ITeam awayTeam;
     protected int currentSegment;

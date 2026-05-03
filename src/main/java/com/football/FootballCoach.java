@@ -3,8 +3,10 @@ package com.football;
 import com.interfaces.ICoach;
 import java.util.ArrayList;
 import java.util.List;
+import java.io.Serializable;
 
-public class FootballCoach implements ICoach {
+public class FootballCoach implements ICoach, Serializable {
+    private static final long serialVersionUID = 1L;
     private String name;
     private int experienceLevel;
     private boolean isHeadCoach;

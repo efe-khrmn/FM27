@@ -4,7 +4,7 @@ import com.interfaces.ISport;
 import com.interfaces.ITeam;
 
 public class GameState {
-
+    private static final long serialVersionUID = 1L;
     private static GameState instance;
 
     private ISport sport;
@@ -12,6 +12,7 @@ public class GameState {
     private ITeam managedTeam;
     private int week;
     private Phase phase;
+    private Object lastMatchResult;
 
     private GameState() {
         this.week = 1;
@@ -28,9 +29,9 @@ public class GameState {
     public void newGame(ISport sport, ITeam managedTeam) {
         this.sport = sport;
         this.managedTeam = managedTeam;
-        this.league = new League(sport);
         this.week = 1;
         this.phase = Phase.TRAINING_WEEK;
+        this.lastMatchResult = null;
     }
 
     public void nextPhase() {
@@ -51,12 +52,17 @@ public class GameState {
         }
     }
 
+    // ── Getters ──
     public ISport getSport() { return sport; }
     public League getLeague() { return league; }
     public ITeam getManagedTeam() { return managedTeam; }
     public int getWeek() { return week; }
     public Phase getPhase() { return phase; }
+    public Object getLastMatchResult() { return lastMatchResult; }
 
+    // ── Setters ──
     public void setSport(ISport sport) { this.sport = sport; }
+    public void setLeague(League league) { this.league = league; }
     public void setManagedTeam(ITeam managedTeam) { this.managedTeam = managedTeam; }
+    public void setLastMatchResult(Object result) { this.lastMatchResult = result; }
 }
