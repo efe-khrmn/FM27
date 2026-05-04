@@ -15,6 +15,7 @@ public interface IPlayer {
     void setTacticCompatibility(int value);
     boolean isInjured();
     int getInjuryGames();
+    void decrementInjury();
     void injure(int games);
     boolean isActive();
 }

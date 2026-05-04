@@ -16,4 +16,14 @@ public class UIStyles {
     public static final String SUBTITLE_STYLE = "-fx-font-size: 16px; -fx-text-fill: #aaaaaa;";
     public static final String LABEL_STYLE  = "-fx-font-size: 13px; -fx-text-fill: white;";
     public static final String TABLE_STYLE  = "-fx-background-color: #0f3460; -fx-text-background-color: white;";
+    public static final String TABLE_ROW_STYLE = "-fx-text-fill: white;";
+    public static final String TABLE_CSS =
+            ".table-view { -fx-background-color: #16213e; }" +
+                    ".table-view .column-header { -fx-background-color: #e94560; }" +
+                    ".table-view .column-header .label { -fx-text-fill: white; -fx-font-weight: bold; }" +
+                    ".table-view .table-row-cell { -fx-background-color: #16213e; }" +
+                    ".table-view .table-row-cell:odd { -fx-background-color: #0f3460; }" +
+                    ".table-view .table-row-cell:selected { -fx-background-color: #1a4a8a; }" +
+                    ".table-view .table-row-cell:hover { -fx-background-color: #1a3a6a; }" +
+                    ".table-view .scroll-bar { -fx-background-color: #16213e; }";
 }

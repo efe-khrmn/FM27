@@ -1,13 +1,18 @@
 package com.ui;
 
 import com.engine.GameState;
+import com.engine.League;
 import com.interfaces.IPlayer;
+import com.interfaces.ISport;
+import com.interfaces.ITeam;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 public class PostMatchScreen {
 
@@ -63,7 +68,10 @@ public class PostMatchScreen {
         continueBtn.setStyle(UIStyles.BTN_PRIMARY);
         continueBtn.setMinWidth(250);
         continueBtn.setOnAction(e -> {
-            GameState.getInstance().nextPhase();
+            simulateAIMatches();
+            decrementInjuries();
+            GameState.getInstance().nextPhase(); // POST_MATCH → TRAINING_WEEK, week++
+
             if (GameState.getInstance().getLeague().isSeasonOver()) {
                 manager.showSeasonEndScreen();
             } else {
@@ -84,6 +92,123 @@ public class PostMatchScreen {
         title.setStyle(UIStyles.TITLE_STYLE);
         nav.getChildren().add(title);
         return nav;
+    }
+    private void simulateAIMatches() {
+        int week = GameState.getInstance().getWeek();
+        ITeam managedTeam = GameState.getInstance().getManagedTeam();
+        ISport sport = GameState.getInstance().getSport();
+        League league = GameState.getInstance().getLeague();
+
+        List<com.engine.Fixture> fixtures = league.getSchedule().getWeekFixtures(week);
+
+        for (com.engine.Fixture f : fixtures) {
+            if (f.isPlayed()) continue;
+            if (f.getHomeTeam().equals(managedTeam) || f.getAwayTeam().equals(managedTeam)) continue;
+
+            int[] result = simulateByStrength(f.getHomeTeam(), f.getAwayTeam(), sport);
+            league.updateStandings(f.getHomeTeam(), result[0], f.getAwayTeam(), result[1]);
+            f.setResult(f.getHomeTeam().getName() + " " + result[0] + " - " + result[1] + " " + f.getAwayTeam().getName());
+        }
+
+        updateManagedTeamStandings();
+    }
+
+    private int[] simulateByStrength(ITeam home, ITeam away, ISport sport) {
+        double homeAttack = getTeamAverageOverall(home, "attack");
+        double homeDefense = getTeamAverageOverall(home, "defense");
+        double awayAttack = getTeamAverageOverall(away, "attack");
+        double awayDefense = getTeamAverageOverall(away, "defense");
+
+        // home advantage bonus
+        homeAttack *= 1.05;
+        homeDefense *= 1.05;
+
+        // score probability based on attack vs opponent defense
+        double homeScoreChance = homeAttack / (homeAttack + awayDefense);
+        double awayScoreChance = awayAttack / (awayAttack + homeDefense);
+
+        Random random = new Random();
+
+        if (sport.getSportName().equals("Football")) {
+            // football: 0-5 goals per team
+            int homeGoals = 0, awayGoals = 0;
+            for (int i = 0; i < 5; i++) {
+                if (random.nextDouble() < homeScoreChance * 0.4) homeGoals++;
+                if (random.nextDouble() < awayScoreChance * 0.4) awayGoals++;
+            }
+            return new int[]{homeGoals, awayGoals};
+
+        } else {
+            // volleyball: first to 3 sets
+            int homeSets = 0, awaySets = 0;
+            while (homeSets < 3 && awaySets < 3) {
+                if (random.nextDouble() < homeScoreChance) homeSets++;
+                else awaySets++;
+            }
+            return new int[]{homeSets, awaySets};
+        }
+    }
+
+    private double getTeamAverageOverall(ITeam team, String overallKey) {
+        List<IPlayer> squad = team.getSquad();
+        if (squad.isEmpty()) return 50;
+        double total = 0;
+        int count = 0;
+        for (IPlayer player : squad) {
+            if (player.getOveralls().containsKey(overallKey)) {
+                total += player.getOveralls().get(overallKey);
+                count++;
+            }
+        }
+        return count == 0 ? 50 : total / count;
+    }
+
+    private void setAILineup(ITeam team, int size) {
+        List<IPlayer> available = team.getAvailablePlayers();
+        List<IPlayer> lineup = new ArrayList<>();
+        for (int i = 0; i < Math.min(size, available.size()); i++) {
+            lineup.add(available.get(i));
+        }
+        if (lineup.size() == size) {
+            try { team.setStartingLineup(lineup); } catch (Exception ignored) {}
+        }
+    }
+
+    private void updateManagedTeamStandings() {
+        Object result = GameState.getInstance().getLastMatchResult();
+        if (result == null) return;
+
+        int week = GameState.getInstance().getWeek();
+        ITeam managedTeam = GameState.getInstance().getManagedTeam();
+        League league = GameState.getInstance().getLeague();
+
+        List<com.engine.Fixture> fixtures = league.getSchedule().getWeekFixtures(week);
+        for (com.engine.Fixture f : fixtures) {
+            if (f.isPlayed()) continue;
+            if (f.getHomeTeam().equals(managedTeam) || f.getAwayTeam().equals(managedTeam)) {
+                // parse score from result string
+                String res = result.toString();
+                // format: "HomeTeam X - Y AwayTeam | Winner: ..."
+                try {
+                    String[] parts = res.split("\\|")[0].trim().split(" ");
+                    int homeScore = Integer.parseInt(parts[parts.length - 3]);
+                    int awayScore = Integer.parseInt(parts[parts.length - 1]);
+                    league.updateStandings(f.getHomeTeam(), homeScore, f.getAwayTeam(), awayScore);
+                    f.setResult(result);
+                } catch (Exception ignored) {}
+                break;
+            }
+        }
+    }
+
+    private void decrementInjuries() {
+        for (ITeam team : GameState.getInstance().getLeague().getTeams()) {
+            for (IPlayer player : team.getSquad()) {
+                if (player.isInjured()) {
+                    player.decrementInjury();
+                }
+            }
+        }
     }
 
     public BorderPane getRoot() { return root; }

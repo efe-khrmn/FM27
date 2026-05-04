@@ -5,9 +5,7 @@ import com.engine.TeamStanding;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.*;
-import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.*;
-import javafx.scene.paint.Color;
 
 import java.util.List;
 
@@ -24,11 +22,8 @@ public class LeagueTableScreen {
     private void build() {
         root = new BorderPane();
         root.setStyle("-fx-background-color: " + UIStyles.BG_DARK + ";");
-
-        // Top nav
         root.setTop(buildNavBar("League Table"));
 
-        // Center — standings table
         VBox center = new VBox(16);
         center.setPadding(new Insets(24));
         center.setStyle("-fx-background-color: " + UIStyles.BG_DARK + ";");
@@ -37,28 +32,86 @@ public class LeagueTableScreen {
         weekLabel.setStyle(UIStyles.SUBTITLE_STYLE);
 
         TableView<TeamStanding> table = new TableView<>();
-        table.setStyle(UIStyles.TABLE_STYLE);
+        table.getStylesheets().add(
+                "data:text/css," + UIStyles.TABLE_CSS.replace(" ", "%20")
+                        .replace("#", "%23").replace(":", "%3A").replace("{", "%7B")
+                        .replace("}", "%7D").replace(";", "%3B").replace(".", "%2E")
+                        .replace("(", "%28").replace(")", "%29").replace("'", "%27")
+        );
         table.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
 
+        // Rank column
+        TableColumn<TeamStanding, Void> rankCol = new TableColumn<>("#");
+        rankCol.setMaxWidth(40);
+        rankCol.setCellFactory(col -> new TableCell<TeamStanding, Void>() {
+            @Override
+            protected void updateItem(Void item, boolean empty) {
+                super.updateItem(item, empty);
+                if (!empty) {
+                    setText(String.valueOf(getIndex() + 1));
+                    setStyle("-fx-text-fill: white; -fx-font-weight: bold; -fx-alignment: center;");
+                } else {
+                    setText(null);
+                }
+            }
+        });
+
+        // Name column
         TableColumn<TeamStanding, String> nameCol = new TableColumn<>("Team");
         nameCol.setCellValueFactory(data ->
                 new javafx.beans.property.SimpleStringProperty(data.getValue().getTeam().getName()));
+        nameCol.setCellFactory(col -> new TableCell<TeamStanding, String>() {
+            @Override
+            protected void updateItem(String item, boolean empty) {
+                super.updateItem(item, empty);
+                if (item != null && !empty) {
+                    setText(item);
+                    setStyle("-fx-text-fill: white; -fx-font-size: 13px; -fx-font-weight: bold;");
+                } else {
+                    setText(null);
+                }
+            }
+        });
 
-        TableColumn<TeamStanding, Integer> pCol = makeIntCol("P", "played");
-        TableColumn<TeamStanding, Integer> wCol = makeIntCol("W", "won");
-        TableColumn<TeamStanding, Integer> dCol = makeIntCol("D", "drawn");
-        TableColumn<TeamStanding, Integer> lCol = makeIntCol("L", "lost");
-        TableColumn<TeamStanding, Integer> gfCol = makeIntCol("GF", "scored");
-        TableColumn<TeamStanding, Integer> gaCol = makeIntCol("GA", "conceded");
+        TableColumn<TeamStanding, Integer> pCol   = makeIntCol("P",   "played");
+        TableColumn<TeamStanding, Integer> wCol   = makeIntCol("W",   "won");
+        TableColumn<TeamStanding, Integer> dCol   = makeIntCol("D",   "drawn");
+        TableColumn<TeamStanding, Integer> lCol   = makeIntCol("L",   "lost");
+        TableColumn<TeamStanding, Integer> gfCol  = makeIntCol("GF",  "scored");
+        TableColumn<TeamStanding, Integer> gaCol  = makeIntCol("GA",  "conceded");
 
         TableColumn<TeamStanding, Integer> gdCol = new TableColumn<>("GD");
         gdCol.setCellValueFactory(data ->
                 new javafx.beans.property.SimpleIntegerProperty(data.getValue().getGoalDiff()).asObject());
+        gdCol.setMaxWidth(60);
+        gdCol.setCellFactory(col -> new TableCell<TeamStanding, Integer>() {
+            @Override
+            protected void updateItem(Integer item, boolean empty) {
+                super.updateItem(item, empty);
+                if (item != null && !empty) {
+                    setText(String.valueOf(item));
+                    setStyle("-fx-text-fill: white; -fx-alignment: center;");
+                } else {
+                    setText(null);
+                }
+            }
+        });
 
         TableColumn<TeamStanding, Integer> ptsCol = makeIntCol("Pts", "points");
-        ptsCol.setStyle("-fx-font-weight: bold;");
+        ptsCol.setCellFactory(col -> new TableCell<TeamStanding, Integer>() {
+            @Override
+            protected void updateItem(Integer item, boolean empty) {
+                super.updateItem(item, empty);
+                if (item != null && !empty) {
+                    setText(String.valueOf(item));
+                    setStyle("-fx-text-fill: white; -fx-font-weight: bold; -fx-alignment: center;");
+                } else {
+                    setText(null);
+                }
+            }
+        });
 
-        table.getColumns().addAll(nameCol, pCol, wCol, dCol, lCol, gfCol, gaCol, gdCol, ptsCol);
+        table.getColumns().addAll(rankCol, nameCol, pCol, wCol, dCol, lCol, gfCol, gaCol, gdCol, ptsCol);
 
         List<TeamStanding> standings = GameState.getInstance().getLeague().getStandings();
         table.getItems().addAll(standings);
@@ -78,15 +131,25 @@ public class LeagueTableScreen {
 
         center.getChildren().addAll(weekLabel, table);
         root.setCenter(center);
-
-        // Bottom nav
         root.setBottom(buildBottomNav());
     }
 
     private TableColumn<TeamStanding, Integer> makeIntCol(String title, String property) {
         TableColumn<TeamStanding, Integer> col = new TableColumn<>(title);
-        col.setCellValueFactory(new PropertyValueFactory<>(property));
+        col.setCellValueFactory(new javafx.scene.control.cell.PropertyValueFactory<>(property));
         col.setMaxWidth(60);
+        col.setCellFactory(c -> new TableCell<TeamStanding, Integer>() {
+            @Override
+            protected void updateItem(Integer item, boolean empty) {
+                super.updateItem(item, empty);
+                if (item != null && !empty) {
+                    setText(String.valueOf(item));
+                    setStyle("-fx-text-fill: white; -fx-alignment: center;");
+                } else {
+                    setText(null);
+                }
+            }
+        });
         return col;
     }
 

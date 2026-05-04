@@ -36,10 +36,18 @@ public class GameState {
 
     public void nextPhase() {
         switch (phase) {
-            case PREGAME:       phase = Phase.TRAINING_WEEK; break;
-            case TRAINING_WEEK: phase = Phase.PRE_MATCH;     break;
-            case PRE_MATCH:     phase = Phase.IN_MATCH;      break;
-            case IN_MATCH:      phase = Phase.POST_MATCH;    break;
+            case PREGAME:
+                phase = Phase.TRAINING_WEEK;
+                break;
+            case TRAINING_WEEK:
+                phase = Phase.PRE_MATCH;
+                break;
+            case PRE_MATCH:
+                phase = Phase.IN_MATCH;
+                break;
+            case IN_MATCH:
+                phase = Phase.POST_MATCH;
+                break;
             case POST_MATCH:
                 if (league.isSeasonOver()) {
                     phase = Phase.SEASON_END;
@@ -48,7 +56,9 @@ public class GameState {
                     phase = Phase.TRAINING_WEEK;
                 }
                 break;
-            case SEASON_END:    phase = Phase.PREGAME;       break;
+            case SEASON_END:
+                phase = Phase.PREGAME;
+                break;
         }
     }
 

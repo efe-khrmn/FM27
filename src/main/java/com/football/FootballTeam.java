@@ -42,4 +42,7 @@ public class FootballTeam extends AbstractTeam implements Serializable {
         }
         this.startingLineup = players;
     }
+    public void setPlayerManaged(boolean managed) {
+        this.playerManaged = managed;
+    }
 }

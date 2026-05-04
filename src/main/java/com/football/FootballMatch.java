@@ -4,6 +4,7 @@ import com.interfaces.IPlayer;
 import com.interfaces.ITeam;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
@@ -24,7 +25,6 @@ public class FootballMatch extends AbstractMatch implements Serializable {
     @Override
     public void simulateNextSegment() {
         if (finished) return;
-
         currentSegment++;
 
         double homeStrength = computeTeamStrength(homeTeam);
@@ -36,21 +36,26 @@ public class FootballMatch extends AbstractMatch implements Serializable {
             if (roll < homeStrength) {
                 if (random.nextDouble() < 0.4) {
                     homeScore++;
-                    events.add("GOAL - " + homeTeam.getName()
-                            + " [" + homeScore + "-" + awayScore + "]");
+                    IPlayer scorer = getRandomOutfieldPlayer(homeTeam);
+                    String scorerName = scorer != null ? scorer.getName() : "Unknown";
+                    events.add("⚽ GOAL - " + homeTeam.getName()
+                            + " [" + scorerName + "] "
+                            + homeScore + "-" + awayScore);
                 }
             } else {
                 if (random.nextDouble() < 0.4) {
                     awayScore++;
-                    events.add("GOAL - " + awayTeam.getName()
-                            + " [" + homeScore + "-" + awayScore + "]");
+                    IPlayer scorer = getRandomOutfieldPlayer(awayTeam);
+                    String scorerName = scorer != null ? scorer.getName() : "Unknown";
+                    events.add("⚽ GOAL - " + awayTeam.getName()
+                            + " [" + scorerName + "] "
+                            + homeScore + "-" + awayScore);
                 }
             }
         }
 
         applyInjuries(homeTeam);
         applyInjuries(awayTeam);
-
         updateStaminaAfterSegment(homeTeam);
         updateStaminaAfterSegment(awayTeam);
 
@@ -59,6 +64,17 @@ public class FootballMatch extends AbstractMatch implements Serializable {
             updateStaminaAfterMatch(homeTeam);
             updateStaminaAfterMatch(awayTeam);
         }
+    }
+
+    private IPlayer getRandomOutfieldPlayer(ITeam team) {
+        List<IPlayer> lineup = team.getStartingLineup();
+        if (lineup == null || lineup.isEmpty()) return null;
+        List<IPlayer> outfield = new ArrayList<>();
+        for (IPlayer p : lineup) {
+            if (!p.getPosition().equals("GK")) outfield.add(p);
+        }
+        if (outfield.isEmpty()) return null;
+        return outfield.get(random.nextInt(outfield.size()));
     }
 
     private double computeTeamStrength(ITeam team) {
