@@ -58,7 +58,16 @@ public class ScheduleScreen {
                 Label home = new Label(f.getHomeTeam().getName());
                 home.setStyle("-fx-text-fill: white; -fx-font-size: 13px; -fx-min-width: 200px; -fx-alignment: center-right;");
 
-                Label vs = new Label(f.isPlayed() ? f.getResult().toString() : "vs");
+                String vsText = "vs";
+                if (f.isPlayed()) {
+                    Object res = f.getResult();
+                    if (res instanceof com.engine.MatchResult) {
+                        vsText = ((com.engine.MatchResult) res).getScore().toString();
+                    } else {
+                        vsText = res.toString();
+                    }
+                }
+                Label vs = new Label(vsText);
                 vs.setStyle("-fx-text-fill: " + (f.isPlayed() ? UIStyles.ACCENT_BLUE : "#aaaaaa") + "; -fx-font-size: 13px; -fx-min-width: 80px; -fx-alignment: center;");
 
                 Label away = new Label(f.getAwayTeam().getName());

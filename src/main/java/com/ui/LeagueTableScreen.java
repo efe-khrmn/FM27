@@ -185,6 +185,10 @@ public class LeagueTableScreen {
 
 
 
+        Button lineupBtn = new Button("Lineup");
+        lineupBtn.setStyle(UIStyles.BTN_SECONDARY);
+        lineupBtn.setOnAction(e -> manager.showLineupScreen());
+
         Button trainingBtn = new Button("Training");
         trainingBtn.setStyle(UIStyles.BTN_PRIMARY);
         trainingBtn.setOnAction(e -> manager.showTrainingScreen());
@@ -199,7 +203,7 @@ public class LeagueTableScreen {
             try { com.engine.SaveManager.save(); } catch (Exception ex) { ex.printStackTrace(); }
         });
 
-        bottom.getChildren().addAll(scheduleBtn, squadBtn, trainingBtn, matchBtn, saveBtn);
+        bottom.getChildren().addAll(scheduleBtn, squadBtn, lineupBtn, trainingBtn, matchBtn, saveBtn);
         return bottom;
     }
 

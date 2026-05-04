@@ -32,7 +32,11 @@ public class TrainingScreen {
         ITeam team = GameState.getInstance().getManagedTeam();
         ITrainingSession training = GameState.getInstance().getSport().createTraining(team);
 
-        Label infoLabel = new Label("Select training focus for this week:");
+        int done = GameState.getInstance().getTrainingsThisWeek();
+        int max = GameState.MAX_TRAININGS_PER_WEEK;
+        int remaining = Math.max(0, max - done);
+
+        Label infoLabel = new Label("Select training focus (" + remaining + "/" + max + " sessions left this week):");
         infoLabel.setStyle(UIStyles.SUBTITLE_STYLE);
 
         // Training type buttons
@@ -60,16 +64,36 @@ public class TrainingScreen {
             btn.setStyle(UIStyles.BTN_PRIMARY);
             btn.setMinWidth(300);
             btn.setOnAction(e -> {
+                if (GameState.getInstance().getTrainingsThisWeek() >= GameState.MAX_TRAININGS_PER_WEEK) {
+                    resultArea.setText("You have already used both training sessions this week.");
+                    resultArea.setVisible(true);
+                    resultTitle.setVisible(true);
+                    typeBox.setDisable(true);
+                    return;
+                }
                 training.runTraining(type);
+                GameState.getInstance().incrementTrainingsThisWeek();
                 List<Object> results = training.getResults();
                 StringBuilder sb = new StringBuilder();
+                sb.append("Sessions used this week: ")
+                        .append(GameState.getInstance().getTrainingsThisWeek())
+                        .append("/").append(GameState.MAX_TRAININGS_PER_WEEK).append("\n\n");
                 for (Object r : results) sb.append(r.toString()).append("\n");
                 resultArea.setText(sb.toString());
                 resultArea.setVisible(true);
                 resultTitle.setVisible(true);
-                typeBox.setDisable(true);
+                if (GameState.getInstance().getTrainingsThisWeek() >= GameState.MAX_TRAININGS_PER_WEEK) {
+                    typeBox.setDisable(true);
+                }
             });
+            if (remaining <= 0) btn.setDisable(true);
             typeBox.getChildren().add(btn);
+        }
+        if (remaining <= 0) {
+            typeBox.setDisable(true);
+            resultArea.setText("You have already used both training sessions this week. Play your match to advance.");
+            resultArea.setVisible(true);
+            resultTitle.setVisible(true);
         }
 
         Button doneBtn = new Button("Done — Back to League Table");

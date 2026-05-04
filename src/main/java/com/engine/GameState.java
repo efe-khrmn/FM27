@@ -32,6 +32,7 @@ public class GameState {
         this.week = 1;
         this.phase = Phase.TRAINING_WEEK;
         this.lastMatchResult = null;
+        this.trainingsThisWeek = 0;
     }
 
     public void nextPhase() {
@@ -54,6 +55,7 @@ public class GameState {
                 } else {
                     week++;
                     phase = Phase.TRAINING_WEEK;
+                    trainingsThisWeek = 0;
                 }
                 break;
             case SEASON_END:
@@ -93,7 +95,13 @@ public class GameState {
     public void advanceWeek() {
         this.week++;
         this.phase = Phase.TRAINING_WEEK;
+        this.trainingsThisWeek = 0;
     }
+    private int trainingsThisWeek = 0;
+    public int getTrainingsThisWeek() { return trainingsThisWeek; }
+    public void incrementTrainingsThisWeek() { trainingsThisWeek++; }
+    public void resetTrainingsThisWeek() { trainingsThisWeek = 0; }
+    public static final int MAX_TRAININGS_PER_WEEK = 2;
     public void setManagedTeam(ITeam managedTeam) { this.managedTeam = managedTeam; }
     public void setLastMatchResult(Object result) { this.lastMatchResult = result; }
 }

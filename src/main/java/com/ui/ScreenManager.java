@@ -37,6 +37,11 @@ public class ScreenManager {
         stage.setScene(new Scene(screen.getRoot(), WIDTH, HEIGHT));
     }
 
+
+    public void showLineupScreen() {
+        LineupScreen screen = new LineupScreen(this);
+        stage.setScene(new Scene(screen.getRoot(), WIDTH, HEIGHT));
+    }
     public void showTrainingScreen() {
         TrainingScreen screen = new TrainingScreen(this);
         stage.setScene(new Scene(screen.getRoot(), WIDTH, HEIGHT));
