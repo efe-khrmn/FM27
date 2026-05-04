@@ -61,7 +61,22 @@ public class GameState {
                 break;
         }
     }
+    private int lastHomeScore = -1;
+    private int lastAwayScore = -1;
+    private ITeam lastHomeTeam = null;
+    private ITeam lastAwayTeam = null;
 
+    public void setLastMatchScore(ITeam home, int homeScore, ITeam away, int awayScore) {
+        this.lastHomeTeam = home;
+        this.lastHomeScore = homeScore;
+        this.lastAwayTeam = away;
+        this.lastAwayScore = awayScore;
+    }
+
+    public int getLastHomeScore() { return lastHomeScore; }
+    public int getLastAwayScore() { return lastAwayScore; }
+    public ITeam getLastHomeTeam() { return lastHomeTeam; }
+    public ITeam getLastAwayTeam() { return lastAwayTeam; }
     // ── Getters ──
     public ISport getSport() { return sport; }
     public League getLeague() { return league; }

@@ -41,7 +41,12 @@ public class TrainingScreen {
         typeBox.setMaxWidth(400);
 
         TextArea resultArea = new TextArea();
-        resultArea.setStyle("-fx-background-color: #0f3460; -fx-text-fill: white; -fx-font-size: 12px;");
+        resultArea.setStyle(
+                "-fx-background-color: #0f3460;" +
+                        "-fx-text-fill: white;" +
+                        "-fx-font-size: 12px;" +
+                        "-fx-control-inner-background: #0f3460;"
+        );
         resultArea.setEditable(false);
         resultArea.setPrefHeight(300);
         resultArea.setVisible(false);

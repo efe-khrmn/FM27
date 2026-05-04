@@ -17,6 +17,8 @@ public class MatchScreen {
     private BorderPane root;
     private IMatch match;
     private boolean interactionEnabled = false;
+    private ITeam homeTeam;
+    private ITeam awayTeam;
 
     public MatchScreen(ScreenManager manager) {
         this.manager = manager;
@@ -60,7 +62,7 @@ public class MatchScreen {
 
         // Events log
         TextArea eventLog = new TextArea();
-        eventLog.setStyle("-fx-background-color: #0f3460; -fx-text-fill: white; -fx-font-size: 12px;");
+        eventLog.setStyle("-fx-background-color: #0f3460; -fx-text-fill: white; -fx-font-size: 12px; -fx-control-inner-background: #0f3460;");
         eventLog.setEditable(false);
         eventLog.setPrefHeight(240);
 
@@ -103,6 +105,10 @@ public class MatchScreen {
             }
         });endBtn.setOnAction(e -> {
             GameState.getInstance().setLastMatchResult(match.getResult());
+            GameState.getInstance().setLastMatchScore(
+                    homeTeam, match.getHomeScore(),
+                    awayTeam, match.getAwayScore()
+            );
             manager.showPostMatchScreen();
         });
 

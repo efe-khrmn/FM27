@@ -175,32 +175,28 @@ public class PostMatchScreen {
     }
 
     private void updateManagedTeamStandings() {
-        Object result = GameState.getInstance().getLastMatchResult();
-        if (result == null) return;
+        GameState gs = GameState.getInstance();
+        ITeam homeTeam = gs.getLastHomeTeam();
+        ITeam awayTeam = gs.getLastAwayTeam();
+        int homeScore = gs.getLastHomeScore();
+        int awayScore = gs.getLastAwayScore();
 
-        int week = GameState.getInstance().getWeek();
-        ITeam managedTeam = GameState.getInstance().getManagedTeam();
-        League league = GameState.getInstance().getLeague();
+        if (homeTeam == null || awayTeam == null || homeScore == -1) return;
+
+        League league = gs.getLeague();
+        int week = gs.getWeek();
 
         List<com.engine.Fixture> fixtures = league.getSchedule().getWeekFixtures(week);
         for (com.engine.Fixture f : fixtures) {
             if (f.isPlayed()) continue;
-            if (f.getHomeTeam().equals(managedTeam) || f.getAwayTeam().equals(managedTeam)) {
-                // parse score from result string
-                String res = result.toString();
-                // format: "HomeTeam X - Y AwayTeam | Winner: ..."
-                try {
-                    String[] parts = res.split("\\|")[0].trim().split(" ");
-                    int homeScore = Integer.parseInt(parts[parts.length - 3]);
-                    int awayScore = Integer.parseInt(parts[parts.length - 1]);
-                    league.updateStandings(f.getHomeTeam(), homeScore, f.getAwayTeam(), awayScore);
-                    f.setResult(result);
-                } catch (Exception ignored) {}
+            if ((f.getHomeTeam().equals(homeTeam) && f.getAwayTeam().equals(awayTeam)) ||
+                    (f.getHomeTeam().equals(awayTeam) && f.getAwayTeam().equals(homeTeam))) {
+                league.updateStandings(homeTeam, homeScore, awayTeam, awayScore);
+                f.setResult(homeTeam.getName() + " " + homeScore + " - " + awayScore + " " + awayTeam.getName());
                 break;
             }
         }
     }
-
     private void decrementInjuries() {
         for (ITeam team : GameState.getInstance().getLeague().getTeams()) {
             for (IPlayer player : team.getSquad()) {

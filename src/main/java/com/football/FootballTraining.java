@@ -82,7 +82,7 @@ public class FootballTraining implements ITrainingSession, Serializable {
 
     private int computeStaminaDelta(String type) {
         switch (type) {
-            case "Fitness":  return -5;
+            case "Fitness":  return +5;
             case "Attack":   return -8;
             case "Defense":  return -8;
             case "Tactic":   return -4;

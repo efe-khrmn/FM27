@@ -12,4 +12,8 @@ public interface IMatch {
     boolean isFinished();
     List<Object> getEvents();
     Object getResult();
+
+    int getHomeScore();
+
+    int getAwayScore();
 }
