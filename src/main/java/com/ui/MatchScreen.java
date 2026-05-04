@@ -30,11 +30,12 @@ public class MatchScreen {
         root.setStyle("-fx-background-color: " + UIStyles.BG_DARK + ";");
         root.setTop(buildNavBar());
 
-        ITeam home = GameState.getInstance().getManagedTeam();
+        homeTeam = GameState.getInstance().getManagedTeam();
         // find opponent from schedule
-        ITeam away = findOpponent(home);
+        ITeam away = findOpponent(homeTeam);
+        awayTeam = away;
 
-        match = GameState.getInstance().getSport().createMatch(home, away);
+        match = GameState.getInstance().getSport().createMatch(homeTeam, away);
 
         VBox center = new VBox(20);
         center.setPadding(new Insets(24));
@@ -45,13 +46,13 @@ public class MatchScreen {
         scoreBox.setAlignment(Pos.CENTER);
         scoreBox.setStyle(UIStyles.CARD_STYLE + " -fx-padding: 24;");
 
-        Label homeLabel = new Label(home.getName());
+        Label homeLabel = new Label(homeTeam.getName());
         homeLabel.setStyle("-fx-font-size: 20px; -fx-font-weight: bold; -fx-text-fill: white;");
 
         Label scoreLabel = new Label("0 - 0");
         scoreLabel.setStyle("-fx-font-size: 36px; -fx-font-weight: bold; -fx-text-fill: " + UIStyles.ACCENT_BLUE + ";");
 
-        Label awayLabel = new Label(away != null ? away.getName() : "TBD");
+        Label awayLabel = new Label(awayTeam != null ? awayTeam.getName() : "TBD");
         awayLabel.setStyle("-fx-font-size: 20px; -fx-font-weight: bold; -fx-text-fill: white;");
 
         scoreBox.getChildren().addAll(homeLabel, scoreLabel, awayLabel);
