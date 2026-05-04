@@ -70,7 +70,13 @@ public class PostMatchScreen {
         continueBtn.setOnAction(e -> {
             simulateAIMatches();
             decrementInjuries();
-            GameState.getInstance().nextPhase(); // POST_MATCH → TRAINING_WEEK, week++
+            // Always advance the week and reset phase to TRAINING_WEEK,
+            // regardless of the previous phase. This ensures Week 2, 3, ... start correctly.
+            if (GameState.getInstance().getLeague().isSeasonOver()) {
+                GameState.getInstance().setPhase(com.engine.Phase.SEASON_END);
+            } else {
+                GameState.getInstance().advanceWeek();
+            }
 
             if (GameState.getInstance().getLeague().isSeasonOver()) {
                 manager.showSeasonEndScreen();

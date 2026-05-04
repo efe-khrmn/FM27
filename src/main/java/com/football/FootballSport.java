@@ -81,19 +81,12 @@ public class FootballSport extends AbstractSport implements ISport, Serializable
     @Override
     public IPlayer createPlayer(String name, String position) {
         int age = 18 + random.nextInt(22);
-        int attack;
-        int defense;
         int number = 1 + random.nextInt(99);
-
-        if (position.equals("GK")) {
-            attack = 5 + random.nextInt(21);
-            defense = 70 + random.nextInt(21);
-        } else {
-            attack = 40 + random.nextInt(46);
-            defense = 40 + random.nextInt(46);
-        }
+        // Pozisyondan bağımsız tamamen rastgele overall
+        int attack = 40 + random.nextInt(60);  // 40-99
+        int defense = 40 + random.nextInt(60); // 40-99
         playerNumberCounter++;
-        return new FootballPlayer(name, number,age, position, attack, defense);
+        return new FootballPlayer(name, number, age, position, attack, defense);
     }
 
     @Override

@@ -36,7 +36,8 @@ public class FootballPlayer extends AbstractPlayer implements IPlayer, Serializa
     private void checkAttackProgression() {
         int current = overalls.get("attack");
         int threshold = getThreshold(current);
-        if (attackXP >= threshold) {
+        if(isInjured())return;
+        else if (attackXP >= threshold) {
             overalls.put("attack", Math.min(99, current + 1));
             attackXP -= threshold;
         }
@@ -45,7 +46,8 @@ public class FootballPlayer extends AbstractPlayer implements IPlayer, Serializa
     private void checkDefenseProgression() {
         int current = overalls.get("defense");
         int threshold = getThreshold(current);
-        if (defenseXP >= threshold) {
+        if(isInjured())return;
+        else if (defenseXP >= threshold) {
             overalls.put("defense", Math.min(99, current + 1));
             defenseXP -= threshold;
         }

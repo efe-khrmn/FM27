@@ -20,6 +20,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
 
+import static com.utils.PositionUtils.getPositionGroup;
+
 public class StartScreen {
 
     private ScreenManager manager;
@@ -220,13 +222,52 @@ public class StartScreen {
 
             List<String> positions = sport.getPositions();
             int squadSize = 18;
+
             for (int p = 0; p < squadSize; p++) {
                 String pos = positions.get(p % positions.size());
                 String playerName = PlayerLoader.getNext();
                 int age = 18 + random.nextInt(18);
-                int atk = 40 + random.nextInt(40);
-                int def = 40 + random.nextInt(40);
-                IPlayer player = createPlayer(sportName, playerName, p + 1, age, pos, atk, def);
+
+                String group = getPositionGroup(pos);
+
+                int atk, def;
+
+                switch (group) {
+                    case "attack":
+                        atk = 70 + random.nextInt(30);
+                        def = 30 + random.nextInt(40);
+                        break;
+
+                    case "midfield":
+                        atk = 50 + random.nextInt(40);
+                        def = 50 + random.nextInt(40);
+                        break;
+
+                    case "defense":
+                        atk = 30 + random.nextInt(40);
+                        def = 70 + random.nextInt(30);
+                        break;
+
+                    case "goalkeeper":
+                        atk = 20 + random.nextInt(20);
+                        def = 80 + random.nextInt(20);
+                        break;
+
+                    default:
+                        atk = 40 + random.nextInt(60);
+                        def = 40 + random.nextInt(60);
+                }
+
+                IPlayer player = createPlayer(
+                        sportName,
+                        playerName,
+                        p + 1,
+                        age,
+                        pos,
+                        atk,
+                        def
+                );
+
                 addPlayerToTeam(team, player, sportName);
             }
 

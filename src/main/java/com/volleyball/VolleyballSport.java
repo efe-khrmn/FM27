@@ -60,8 +60,9 @@ public class VolleyballSport extends AbstractSport implements Serializable {
         Random random = new Random();
         int age = 18 + random.nextInt(18);
         int number = 1 + random.nextInt(99);
-        int attack = 40 + random.nextInt(40);
-        int defense = 40 + random.nextInt(40);
+        // Pozisyondan bağımsız tamamen rastgele overall
+        int attack = 40 + random.nextInt(60);  // 40-99
+        int defense = 40 + random.nextInt(60); // 40-99
         return new VolleyballPlayer(name, number, age, position, attack, defense);
     }
 

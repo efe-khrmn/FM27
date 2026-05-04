@@ -73,6 +73,23 @@ public class PreMatchScreen {
         lineupLabel.setStyle(UIStyles.SUBTITLE_STYLE);
 
         ListView<IPlayer> lineupList = new ListView<>();
+        // PreMatchScreen.build() içinde lineupList oluşturduktan sonra
+        ITeam team1 = GameState.getInstance().getManagedTeam();
+
+        // load default lineup if exists
+        if (team1 instanceof com.football.FootballTeam) {
+            com.football.FootballTeam ft = (com.football.FootballTeam) team;
+            if (ft.hasDefaultLineup()) {
+                lineupList.getItems().addAll(ft.getDefaultLineup());
+                lineupLabel.setText("Starting Lineup (" + lineupList.getItems().size() + "/" + teamSize + ")");
+            }
+        } else if (team instanceof com.volleyball.VolleyballTeam) {
+            com.volleyball.VolleyballTeam vt = (com.volleyball.VolleyballTeam) team;
+            if (vt.hasDefaultLineup()) {
+                lineupList.getItems().addAll(vt.getDefaultLineup());
+                lineupLabel.setText("Starting Lineup (" + lineupList.getItems().size() + "/" + teamSize + ")");
+            }
+        }
         lineupList.setStyle("-fx-background-color: #1a2a5e; -fx-text-fill: white;");
         lineupList.setPrefHeight(300);
         lineupList.setCellFactory(lv -> new ListCell<IPlayer>() {
@@ -146,6 +163,7 @@ public class PreMatchScreen {
         root.setCenter(center);
         root.setBottom(buildBackBtn());
     }
+
 
     private void showAlert(String msg) {
         Alert alert = new Alert(Alert.AlertType.WARNING, msg, ButtonType.OK);

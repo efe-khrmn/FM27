@@ -183,6 +183,8 @@ public class LeagueTableScreen {
         squadBtn.setStyle(UIStyles.BTN_SECONDARY);
         squadBtn.setOnAction(e -> manager.showSquadScreen());
 
+
+
         Button trainingBtn = new Button("Training");
         trainingBtn.setStyle(UIStyles.BTN_PRIMARY);
         trainingBtn.setOnAction(e -> manager.showTrainingScreen());

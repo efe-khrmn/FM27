@@ -88,6 +88,12 @@ public class GameState {
     // ── Setters ──
     public void setSport(ISport sport) { this.sport = sport; }
     public void setLeague(League league) { this.league = league; }
+    public void setWeek(int week) { this.week = week; }
+    public void setPhase(Phase phase) { this.phase = phase; }
+    public void advanceWeek() {
+        this.week++;
+        this.phase = Phase.TRAINING_WEEK;
+    }
     public void setManagedTeam(ITeam managedTeam) { this.managedTeam = managedTeam; }
     public void setLastMatchResult(Object result) { this.lastMatchResult = result; }
 }

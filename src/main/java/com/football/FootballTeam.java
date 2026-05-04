@@ -5,6 +5,7 @@ import com.interfaces.ICoach;
 import com.interfaces.IPlayer;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
 
 public class FootballTeam extends AbstractTeam implements Serializable {
@@ -44,5 +45,18 @@ public class FootballTeam extends AbstractTeam implements Serializable {
     }
     public void setPlayerManaged(boolean managed) {
         this.playerManaged = managed;
+    }
+    private List<IPlayer> defaultLineup = new ArrayList<>();
+
+    public void saveDefaultLineup(List<IPlayer> lineup) {
+        this.defaultLineup = new ArrayList<>(lineup);
+    }
+
+    public List<IPlayer> getDefaultLineup() {
+        return defaultLineup;
+    }
+
+    public boolean hasDefaultLineup() {
+        return !defaultLineup.isEmpty();
     }
 }

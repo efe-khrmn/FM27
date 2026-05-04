@@ -158,7 +158,8 @@ public class SquadScreen {
             col.setMaxWidth(80);
             col.setCellValueFactory(data -> {
                 Map<String, Integer> overalls = data.getValue().getOveralls();
-                int val = overalls.containsKey(overallType) ? overalls.get(overallType) : 0;
+                String key = overallType.toLowerCase();
+                int val = overalls.containsKey(key) ? overalls.get(key) : 0;
                 return new javafx.beans.property.SimpleStringProperty(String.valueOf(val));
             });
             col.setCellFactory(c -> new TableCell<IPlayer, String>() {
