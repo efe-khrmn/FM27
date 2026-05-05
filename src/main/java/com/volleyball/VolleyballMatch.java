@@ -78,32 +78,45 @@ public class VolleyballMatch extends AbstractMatch implements Serializable {
         }
     }
 
-    private double computeTeamStrength(ITeam team) {
+    private List<IPlayer> getEffectiveLineup(ITeam team) {
         List<IPlayer> lineup = team.getStartingLineup();
+        if (lineup != null && !lineup.isEmpty()) return lineup;
+        java.util.List<IPlayer> fallback = new java.util.ArrayList<>();
+        if (team.getSquad() != null) {
+            for (IPlayer p : team.getSquad()) {
+                if (p.isActive() && !p.isInjured()) fallback.add(p);
+                if (fallback.size() >= 6) break;
+            }
+        }
+        return fallback;
+    }
+
+    private double computeTeamStrength(ITeam team) {
+        List<IPlayer> lineup = getEffectiveLineup(team);
         if (lineup == null || lineup.isEmpty()) return 50;
 
         double total = 0;
         int count = 0;
         for (IPlayer player : lineup) {
-            if (player.isInjured() || !player.isActive()) continue; // injured cannot play
+            if (player.isInjured() || !player.isActive()) continue;
             if (player instanceof VolleyballPlayer) {
                 VolleyballPlayer vp = (VolleyballPlayer) player;
                 double effective = vp.getEffectiveOverall(player.getPosition());
                 double compatFactor = player.getTacticCompatibility() / 100.0;
                 double staminaFactor = player.getStamina() / 100.0;
-                total += effective * compatFactor * staminaFactor;
+                double modifier = 0.7 + 0.15 * compatFactor + 0.15 * staminaFactor;
+                total += effective * modifier;
                 count++;
             }
         }
-        if (count == 0) return 1;
-        return total / count;
+        return count == 0 ? 50 : total / count;
     }
 
     private void updateStaminaAfterSet(ITeam team) {
         List<IPlayer> lineup = team.getStartingLineup();
         if (lineup == null) return;
         for (IPlayer player : lineup) {
-            player.updateStamina(-10);
+            player.updateStamina(-3);
         }
     }
 
