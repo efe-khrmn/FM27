@@ -45,16 +45,17 @@ public class LineupScreen {
     private static final Map<String, List<String>> VOLLEYBALL_FORMATIONS = new LinkedHashMap<>();
     static {
         FOOTBALL_FORMATIONS.put("4-3-3", Arrays.asList("GK","LB","CB","CB","RB","CDM","CM","CAM","LW","ST","RW"));
-        FOOTBALL_FORMATIONS.put("4-4-2", Arrays.asList("GK","LB","CB","CB","RB","CM","CM","LW","RW","ST","ST"));
-        FOOTBALL_FORMATIONS.put("3-5-2", Arrays.asList("GK","CB","CB","CB","CDM","CM","CM","LW","RW","ST","ST"));
-        FOOTBALL_FORMATIONS.put("4-2-3-1", Arrays.asList("GK","LB","CB","CB","RB","CDM","CDM","CAM","LW","RW","ST"));
+        FOOTBALL_FORMATIONS.put("4-4-2", Arrays.asList("GK","LB","CB","CB","RB","CM","CM","LW","ST","ST","RW"));
+        FOOTBALL_FORMATIONS.put("3-5-2", Arrays.asList("GK","CB","CB","CB","CDM","CM","CM","LW","ST","ST","RW"));
+        FOOTBALL_FORMATIONS.put("5-3-2", Arrays.asList("GK","LB","CB","CB","CB","RB","CDM","CM","CAM","ST","ST"));
 
         VOLLEYBALL_FORMATIONS.put("Standard 6", Arrays.asList("S","OH","OH","MB","MB","OPP"));
         VOLLEYBALL_FORMATIONS.put("With Libero", Arrays.asList("S","OH","OH","MB","L","OPP"));
     }
 
     private List<String> slotPositions;
-    private List<ComboBox<IPlayer>> slotCombos;
+    private List<Button> slotButtons;
+    private List<IPlayer> slotSelections;
     private List<Label> slotInfoLabels;
     private List<IPlayer> availablePlayers;
     private ITeam team;
@@ -100,6 +101,11 @@ public class LineupScreen {
         pitch.setStyle(UIStyles.CARD_STYLE);
         pitch.setPadding(new Insets(16));
 
+        ScrollPane pitchScroll = new ScrollPane(pitch);
+        pitchScroll.setFitToWidth(true);
+        pitchScroll.setStyle("-fx-background: transparent; -fx-background-color: transparent;");
+        pitchScroll.setPrefViewportHeight(520);
+
         rebuildSlots(pitch);
 
         formationBox.setOnAction(e -> {
@@ -118,12 +124,15 @@ public class LineupScreen {
         saveBtn.setStyle(UIStyles.BTN_PRIMARY);
 
         autoBtn.setOnAction(e -> autoFill());
-        clearBtn.setOnAction(e -> { for (ComboBox<IPlayer> c : slotCombos) c.setValue(null); refreshAllInfo(); });
+        clearBtn.setOnAction(e -> {
+            for (int i = 0; i < slotSelections.size(); i++) slotSelections.set(i, null);
+            refreshAllInfo();
+        });
         saveBtn.setOnAction(e -> saveLineup());
 
         actions.getChildren().addAll(autoBtn, clearBtn, saveBtn);
 
-        content.getChildren().addAll(topBar, pitch, actions);
+        content.getChildren().addAll(topBar, pitchScroll, actions);
 
         // Preload existing default lineup if size matches
         preloadExistingLineup();
@@ -138,12 +147,16 @@ public class LineupScreen {
 
     private void rebuildSlots(VBox pitch) {
         pitch.getChildren().clear();
-        slotCombos = new ArrayList<>();
+        slotButtons = new ArrayList<>();
         slotInfoLabels = new ArrayList<>();
+        slotSelections = new ArrayList<>();
+        for (int i = 0; i < slotPositions.size(); i++) {
+            slotSelections.add(null);
+            slotButtons.add(null);
+            slotInfoLabels.add(null);
+        }
 
-        // Group rows for visual pitch — football: GK / DEF / MID / ATT
         List<List<Integer>> rows = computeRows();
-
         for (List<Integer> row : rows) {
             HBox rowBox = new HBox(14);
             rowBox.setAlignment(Pos.CENTER);
@@ -168,7 +181,6 @@ public class LineupScreen {
             }
             rows.add(att); rows.add(mid); rows.add(def); rows.add(gk);
         } else {
-            // Volleyball: front row (3) and back row (3) — first 3 back, last 3 front, simple split
             List<Integer> front = new ArrayList<>(), back = new ArrayList<>();
             for (int i = 0; i < slotPositions.size(); i++) {
                 String p = slotPositions.get(i);
@@ -184,45 +196,68 @@ public class LineupScreen {
         String pos = slotPositions.get(slotIdx);
         VBox box = new VBox(4);
         box.setAlignment(Pos.CENTER);
-        box.setPrefWidth(170);
+        box.setPrefWidth(180);
         box.setPadding(new Insets(8));
         box.setStyle("-fx-background-color: #16235a; -fx-background-radius: 8; -fx-border-color: #2a3a7a; -fx-border-radius: 8;");
 
         Label posLabel = new Label(pos);
         posLabel.setStyle("-fx-text-fill: #ffd166; -fx-font-weight: bold; -fx-font-size: 14px;");
 
-        ComboBox<IPlayer> combo = new ComboBox<>(FXCollections.observableArrayList(availablePlayers));
-        combo.setPrefWidth(150);
-        combo.setConverter(new StringConverter<IPlayer>() {
-            @Override public String toString(IPlayer p) {
-                if (p == null) return "-- pick --";
-                double eff = effectiveAt(p, pos);
-                return "#" + p.getNumber() + " " + p.getName() + " [" + p.getPosition() + "] " + Math.round(eff);
-            }
-            @Override public IPlayer fromString(String s) { return null; }
-        });
+        Button pickBtn = new Button("-- pick --");
+        pickBtn.setPrefWidth(165);
+        pickBtn.setStyle("-fx-background-color: #1f2d6e; -fx-text-fill: white;");
+        pickBtn.setOnAction(e -> openPlayerPicker(slotIdx));
 
-        Label info = new Label("");
+        Label info = new Label("(empty)");
         info.setStyle("-fx-text-fill: #cfd6e4; -fx-font-size: 11px;");
+        info.setWrapText(true);
 
-        combo.setOnAction(e -> {
-            // Prevent same player twice
-            IPlayer chosen = combo.getValue();
-            if (chosen != null) {
-                for (int i = 0; i < slotCombos.size(); i++) {
-                    if (i != slotIdx && chosen.equals(slotCombos.get(i).getValue())) {
-                        slotCombos.get(i).setValue(null);
+        slotButtons.set(slotIdx, pickBtn);
+        slotInfoLabels.set(slotIdx, info);
+
+        box.getChildren().addAll(posLabel, pickBtn, info);
+        return box;
+    }
+
+    private void openPlayerPicker(int slotIdx) {
+        String pos = slotPositions.get(slotIdx);
+        // Build sorted list of players by effective overall at this position (desc)
+        List<IPlayer> sorted = new ArrayList<>(availablePlayers);
+        sorted.sort((a, b) -> Double.compare(effectiveAt(b, pos), effectiveAt(a, pos)));
+
+        List<String> labels = new ArrayList<>();
+        labels.add("(clear)");
+        for (IPlayer p : sorted) {
+            labels.add(playerLabel(p, pos));
+        }
+
+        ChoiceDialog<String> dlg = new ChoiceDialog<>(labels.get(0), labels);
+        dlg.setTitle("Pick player for " + pos);
+        dlg.setHeaderText("Select player for slot: " + pos);
+        dlg.setContentText("Player:");
+        dlg.showAndWait().ifPresent(choice -> {
+            if ("(clear)".equals(choice)) {
+                slotSelections.set(slotIdx, null);
+            } else {
+                int idx = labels.indexOf(choice) - 1;
+                if (idx >= 0 && idx < sorted.size()) {
+                    IPlayer chosen = sorted.get(idx);
+                    // Remove from any other slot
+                    for (int i = 0; i < slotSelections.size(); i++) {
+                        if (i != slotIdx && chosen.equals(slotSelections.get(i))) {
+                            slotSelections.set(i, null);
+                        }
                     }
+                    slotSelections.set(slotIdx, chosen);
                 }
             }
             refreshAllInfo();
         });
+    }
 
-        slotCombos.add(combo);
-        slotInfoLabels.add(info);
-
-        box.getChildren().addAll(posLabel, combo, info);
-        return box;
+    private String playerLabel(IPlayer p, String pos) {
+        double eff = effectiveAt(p, pos);
+        return "#" + p.getNumber() + " " + p.getName() + " [" + p.getPosition() + "] OVR " + Math.round(eff);
     }
 
     private double effectiveAt(IPlayer p, String pos) {
@@ -236,17 +271,19 @@ public class LineupScreen {
     }
 
     private void refreshAllInfo() {
-        for (int i = 0; i < slotCombos.size(); i++) {
-            ComboBox<IPlayer> c = slotCombos.get(i);
+        for (int i = 0; i < slotButtons.size(); i++) {
+            Button btn = slotButtons.get(i);
             Label info = slotInfoLabels.get(i);
             String pos = slotPositions.get(i);
-            IPlayer p = c.getValue();
-            VBox parent = (VBox) c.getParent();
+            IPlayer p = slotSelections.get(i);
+            VBox parent = (VBox) btn.getParent();
             if (p == null) {
+                btn.setText("-- pick --");
                 info.setText("(empty)");
                 parent.setStyle("-fx-background-color: #16235a; -fx-background-radius: 8; -fx-border-color: #2a3a7a; -fx-border-radius: 8;");
                 continue;
             }
+            btn.setText(playerLabel(p, pos));
             double base = baseOverall(p);
             double eff = effectiveAt(p, pos);
             String tag;
@@ -258,40 +295,27 @@ public class LineupScreen {
                 else if (ratio >= 0.89) { tag = "adjacent -10%"; border = "#f97316"; }
                 else { tag = "out of position -30%"; border = "#ef4444"; }
             }
-            info.setText(p.getPosition() + " → " + pos + " | " + Math.round(eff) + " (" + tag + ")");
+            info.setText(p.getPosition() + " → " + pos + " | OVR " + Math.round(eff) + " (" + tag + ")");
             parent.setStyle("-fx-background-color: #16235a; -fx-background-radius: 8; -fx-border-color: " + border + "; -fx-border-width: 2; -fx-border-radius: 8;");
         }
     }
 
     private void autoFill() {
+        for (int i = 0; i < slotSelections.size(); i++) slotSelections.set(i, null);
         List<IPlayer> used = new ArrayList<>();
-
         for (int i = 0; i < slotPositions.size(); i++) {
             String pos = slotPositions.get(i);
-
-            ComboBox<IPlayer> combo = slotCombos.get(i);
-
-            IPlayer best = null;
-            double bestScore = -1;
-
-            for (IPlayer p : combo.getItems()) {
+            IPlayer best = null; double bestScore = -1;
+            for (IPlayer p : availablePlayers) {
                 if (used.contains(p)) continue;
-
-                double score = effectiveAt(p, pos);
-                if (score > bestScore) {
-                    bestScore = score;
-                    best = p;
-                }
+                double s = effectiveAt(p, pos);
+                if (s > bestScore) { bestScore = s; best = p; }
             }
-
             if (best != null) {
                 used.add(best);
-
-                // 🔥 CRITICAL FIX: aynı referansı set et
-                combo.setValue(best);
+                slotSelections.set(i, best);
             }
         }
-
         refreshAllInfo();
     }
 
@@ -303,15 +327,14 @@ public class LineupScreen {
             existing = ((VolleyballTeam) team).getDefaultLineup();
         }
         if (existing != null && existing.size() == slotPositions.size()) {
-            for (int i = 0; i < existing.size(); i++) slotCombos.get(i).setValue(existing.get(i));
+            for (int i = 0; i < existing.size(); i++) slotSelections.set(i, existing.get(i));
             refreshAllInfo();
         }
     }
 
     private void saveLineup() {
         List<IPlayer> chosen = new ArrayList<>();
-        for (ComboBox<IPlayer> c : slotCombos) {
-            IPlayer p = c.getValue();
+        for (IPlayer p : slotSelections) {
             if (p == null) {
                 showAlert("Please fill every slot before saving.");
                 return;
