@@ -3,7 +3,7 @@ package com.abstracts;
 import com.interfaces.*;
 import java.util.List;
 
-public abstract class AbstractSport implements ISport {
+public abstract class AbstractSport implements ISport, java.io.Serializable {
     private static final long serialVersionUID = 1L;
     @Override
     public abstract String getSportName();

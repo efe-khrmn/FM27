@@ -3,7 +3,7 @@ package com.abstracts;
 import com.interfaces.IPlayer;
 import java.util.Map;
 
-public abstract class AbstractPlayer implements IPlayer {
+public abstract class AbstractPlayer implements IPlayer, java.io.Serializable {
     private static final long serialVersionUID = 1L;
     protected String name;
     protected int number;

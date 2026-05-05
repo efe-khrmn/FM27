@@ -1,9 +1,11 @@
 package com.abstracts;
 
 import com.interfaces.*;
+
+import java.io.Serializable;
 import java.util.*;
 
-public abstract class AbstractMatch implements IMatch {
+public abstract class AbstractMatch implements IMatch, Serializable {
     private static final long serialVersionUID = 1L;
     protected ITeam homeTeam;
     protected ITeam awayTeam;

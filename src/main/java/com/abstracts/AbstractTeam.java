@@ -9,7 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public abstract class AbstractTeam implements ITeam {
+public abstract class AbstractTeam implements ITeam, java.io.Serializable {
     private static final long serialVersionUID = 1L;
     protected String name;
     protected String logoId;

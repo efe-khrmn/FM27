@@ -3,37 +3,35 @@ package com.engine;
 import java.io.*;
 
 public class SaveManager {
-    private static final long serialVersionUID = 1L;
     private static final String SAVE_FILE = "savegame.dat";
 
     public static void save() throws IOException {
         GameState gs = GameState.getInstance();
+
         try (ObjectOutputStream oos = new ObjectOutputStream(
                 new FileOutputStream(SAVE_FILE))) {
-            oos.writeObject(gs.getSport().getSportName());
-            oos.writeObject(gs.getLeague());
-            oos.writeObject(gs.getManagedTeam());
-            oos.writeInt(gs.getWeek());
-            oos.writeObject(gs.getPhase());
+
+            oos.writeObject(gs);
         }
+
         System.out.println("Game saved.");
     }
 
     public static void load() throws IOException, ClassNotFoundException {
-        try (ObjectInputStream ois = new ObjectInputStream(
-                new FileInputStream(SAVE_FILE))) {
-            String sportName = (String) ois.readObject();
-            League league = (League) ois.readObject();
-            Object managedTeam = ois.readObject();
-            int week = ois.readInt();
-            Phase phase = (Phase) ois.readObject();
+        File file = new File(SAVE_FILE);
 
-            GameState gs = GameState.getInstance();
-            gs.setSport(SportFactory.create(sportName));
-            gs.setLeague(league);
-            gs.setManagedTeam((com.interfaces.ITeam) managedTeam);
-            gs.setLeague(league);
-            System.out.println("Game loaded.");
+        if (!file.exists()) {
+            System.out.println("No save file found.");
+            return;
         }
+
+        try (ObjectInputStream ois = new ObjectInputStream(
+                new FileInputStream(file))) {
+
+            GameState loaded = (GameState) ois.readObject();
+            GameState.setInstance(loaded);
+        }
+
+        System.out.println("Game loaded.");
     }
 }
