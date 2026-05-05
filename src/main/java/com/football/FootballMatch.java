@@ -27,6 +27,10 @@ public class FootballMatch extends AbstractMatch implements Serializable {
         if (finished) return;
         currentSegment++;
 
+        // Remove injured players from active lineup before this segment
+        removeInjuredFromLineup(homeTeam);
+        removeInjuredFromLineup(awayTeam);
+
         double homeStrength = computeTeamStrength(homeTeam);
         double awayStrength = computeTeamStrength(awayTeam);
         double total = homeStrength + awayStrength;
@@ -66,11 +70,30 @@ public class FootballMatch extends AbstractMatch implements Serializable {
         }
     }
 
+    private void removeInjuredFromLineup(ITeam team) {
+        List<IPlayer> lineup = team.getStartingLineup();
+        if (lineup == null) return;
+        List<IPlayer> remaining = new ArrayList<>();
+        for (IPlayer p : lineup) {
+            if (p.isInjured() || !p.isActive()) {
+                events.add("OUT - " + p.getName() + " (injured) leaves the field");
+            } else {
+                remaining.add(p);
+            }
+        }
+        if (remaining.size() != lineup.size()) {
+            // bypass setStartingLineup validation by mutating list in place
+            lineup.clear();
+            lineup.addAll(remaining);
+        }
+    }
+
     private IPlayer getRandomOutfieldPlayer(ITeam team) {
         List<IPlayer> lineup = team.getStartingLineup();
         if (lineup == null || lineup.isEmpty()) return null;
         List<IPlayer> outfield = new ArrayList<>();
         for (IPlayer p : lineup) {
+            if (p.isInjured() || !p.isActive()) continue;
             if (!p.getPosition().equals("GK")) outfield.add(p);
         }
         if (outfield.isEmpty()) return null;
@@ -82,22 +105,29 @@ public class FootballMatch extends AbstractMatch implements Serializable {
         if (lineup == null || lineup.isEmpty()) return 50;
 
         double total = 0;
+        int count = 0;
         for (IPlayer player : lineup) {
+            if (player.isInjured() || !player.isActive()) continue; // injured players cannot contribute
             if (player instanceof FootballPlayer) {
                 FootballPlayer fp = (FootballPlayer) player;
                 double effective = fp.getEffectiveOverall(fp.getPosition());
                 double compatFactor = fp.getTacticCompatibility() / 100.0;
                 double staminaFactor = fp.getStamina() / 100.0;
                 total += effective * compatFactor * staminaFactor;
+                count++;
             }
         }
-        return total / lineup.size();
+        if (count == 0) return 1;
+        return total / count;
     }
 
     private void applyInjuries(ITeam team) {
         List<IPlayer> lineup = team.getStartingLineup();
         if (lineup == null) return;
-        for (IPlayer player : lineup) {
+        // copy to avoid concurrent modification
+        List<IPlayer> snapshot = new ArrayList<>(lineup);
+        for (IPlayer player : snapshot) {
+            if (player.isInjured()) continue;
             if (player.getPosition().equals("GK")) continue; // GK exempt
             if (random.nextDouble() < 0.05) {
                 int games = 1 + random.nextInt(3);

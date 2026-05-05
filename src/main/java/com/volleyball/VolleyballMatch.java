@@ -83,16 +83,20 @@ public class VolleyballMatch extends AbstractMatch implements Serializable {
         if (lineup == null || lineup.isEmpty()) return 50;
 
         double total = 0;
+        int count = 0;
         for (IPlayer player : lineup) {
+            if (player.isInjured() || !player.isActive()) continue; // injured cannot play
             if (player instanceof VolleyballPlayer) {
                 VolleyballPlayer vp = (VolleyballPlayer) player;
                 double effective = vp.getEffectiveOverall(player.getPosition());
                 double compatFactor = player.getTacticCompatibility() / 100.0;
                 double staminaFactor = player.getStamina() / 100.0;
                 total += effective * compatFactor * staminaFactor;
+                count++;
             }
         }
-        return total / lineup.size();
+        if (count == 0) return 1;
+        return total / count;
     }
 
     private void updateStaminaAfterSet(ITeam team) {
