@@ -120,7 +120,7 @@ public class FootballMatch extends AbstractMatch implements Serializable {
         if (lineup == null) return;
         for (IPlayer player : lineup) {
             if (player.getPosition().equals("GK")) continue; // GK exempt
-            if (random.nextDouble() < 0.05) {
+            if (random.nextDouble() < 0.012) {
                 int games = 1 + random.nextInt(3);
                 player.injure(games);
                 events.add("INJURY - " + player.getName()

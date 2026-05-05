@@ -54,6 +54,7 @@ public class LineupScreen {
     }
 
     private List<String> slotPositions;
+    private String currentFormationName;
     private List<Button> slotButtons;
     private List<IPlayer> slotSelections;
     private List<Label> slotInfoLabels;
@@ -77,6 +78,11 @@ public class LineupScreen {
 
         Map<String, List<String>> formations = isFootball() ? FOOTBALL_FORMATIONS : VOLLEYBALL_FORMATIONS;
         String defaultFormation = formations.keySet().iterator().next();
+        // Use the team's saved tactic if it matches an available formation
+        if (team.getTactic() != null && formations.containsKey(team.getTactic().getTacticName())) {
+            defaultFormation = team.getTactic().getTacticName();
+        }
+        currentFormationName = defaultFormation;
         slotPositions = formations.get(defaultFormation);
 
         VBox content = new VBox(16);
@@ -109,7 +115,8 @@ public class LineupScreen {
         rebuildSlots(pitch);
 
         formationBox.setOnAction(e -> {
-            slotPositions = formations.get(formationBox.getValue());
+            currentFormationName = formationBox.getValue();
+            slotPositions = formations.get(currentFormationName);
             rebuildSlots(pitch);
         });
 
@@ -343,6 +350,18 @@ public class LineupScreen {
         }
         if (team instanceof FootballTeam) ((FootballTeam) team).saveDefaultLineup(chosen);
         else if (team instanceof VolleyballTeam) ((VolleyballTeam) team).saveDefaultLineup(chosen);
+
+        // Persist the chosen formation as the team's tactic so PreMatch / Match
+        // screens don't reset it back to the first available formation.
+        if (currentFormationName != null) {
+            try {
+                if (team instanceof FootballTeam) {
+                    team.setTactic(new com.football.FootballTactic(currentFormationName));
+                } else if (team instanceof VolleyballTeam) {
+                    team.setTactic(new com.volleyball.VolleyballTactic(currentFormationName));
+                }
+            } catch (Exception ignored) { /* don't block save on tactic mismatch */ }
+        }
 
         Alert a = new Alert(Alert.AlertType.INFORMATION, "Default lineup saved.", ButtonType.OK);
         a.showAndWait();

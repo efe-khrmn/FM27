@@ -154,6 +154,17 @@ public class PreMatchScreen {
                 showAlert(ex.getMessage());
                 return;
             }
+            // Apply selected tactic so the chosen formation isn't lost
+            String chosenTactic = tacticBox.getValue();
+            if (chosenTactic != null && !chosenTactic.isEmpty()) {
+                try {
+                    if (team instanceof com.football.FootballTeam) {
+                        team.setTactic(new com.football.FootballTactic(chosenTactic));
+                    } else if (team instanceof com.volleyball.VolleyballTeam) {
+                        team.setTactic(new com.volleyball.VolleyballTactic(chosenTactic));
+                    }
+                } catch (Exception ignored) { }
+            }
             manager.showMatchScreen();
         });
 

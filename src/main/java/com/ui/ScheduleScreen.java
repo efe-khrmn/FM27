@@ -63,8 +63,9 @@ public class ScheduleScreen {
                     Object res = f.getResult();
                     if (res instanceof com.engine.MatchResult) {
                         vsText = ((com.engine.MatchResult) res).getScore().toString();
-                    } else {
-                        vsText = res.toString();
+                    } else if (res != null) {
+                        vsText = extractScore(res.toString(),
+                                f.getHomeTeam().getName(), f.getAwayTeam().getName());
                     }
                 }
                 Label vs = new Label(vsText);
@@ -84,6 +85,18 @@ public class ScheduleScreen {
         center.getChildren().add(scroll);
         root.setCenter(center);
         root.setBottom(buildBackBtn());
+    }
+
+    /** Strips team names and any "| Winner: ..." suffix, leaving just "X - Y" (or sets text). */
+    private String extractScore(String full, String home, String away) {
+        if (full == null) return "vs";
+        String s = full;
+        int pipe = s.indexOf('|');
+        if (pipe >= 0) s = s.substring(0, pipe);
+        if (home != null && s.startsWith(home)) s = s.substring(home.length());
+        if (away != null && s.endsWith(away)) s = s.substring(0, s.length() - away.length());
+        s = s.trim();
+        return s.isEmpty() ? "vs" : s;
     }
 
     private HBox buildNavBar() {

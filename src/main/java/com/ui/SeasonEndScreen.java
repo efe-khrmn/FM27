@@ -28,14 +28,27 @@ public class SeasonEndScreen {
         VBox center = new VBox(24);
         center.setPadding(new Insets(40));
         center.setAlignment(Pos.TOP_CENTER);
+        center.setStyle("-fx-background-color: " + UIStyles.BG_DARK + ";");
 
         // Champion
         List<TeamStanding> standings = GameState.getInstance().getLeague().getStandings();
         SeasonResult seasonResult = new SeasonResult(standings);
         TeamStanding champion = seasonResult.getChampion();
 
+        // Champion card (themed)
+        VBox champCard = new VBox(10);
+        champCard.setAlignment(Pos.CENTER);
+        champCard.setPadding(new Insets(28));
+        champCard.setStyle(
+                "-fx-background-color: linear-gradient(to bottom right, " + UIStyles.BG_CARD + ", " + UIStyles.BG_PANEL + ");"
+                        + "-fx-background-radius: 12;"
+                        + "-fx-border-color: #f1c40f; -fx-border-width: 2; -fx-border-radius: 12;");
+
+        Label trophy = new Label("🏆");
+        trophy.setStyle("-fx-font-size: 56px;");
+
         Label champTitle = new Label("Season Champion");
-        champTitle.setStyle(UIStyles.SUBTITLE_STYLE);
+        champTitle.setStyle("-fx-font-size: 16px; -fx-text-fill: #cfd6e4; -fx-font-weight: bold;");
 
         Label champName = new Label(champion != null ? champion.getTeam().getName() : "Unknown");
         champName.setStyle("-fx-font-size: 36px; -fx-font-weight: bold; -fx-text-fill: #f1c40f;");
@@ -44,8 +57,10 @@ public class SeasonEndScreen {
         boolean playerWon = champion != null &&
                 champion.getTeam().equals(GameState.getInstance().getManagedTeam());
 
-        Label playerResult = new Label(playerWon ? "🏆 Congratulations! You won the league!" : "Better luck next season.");
-        playerResult.setStyle("-fx-font-size: 18px; -fx-text-fill: " + (playerWon ? "#2ecc71" : "#e74c3c") + ";");
+        Label playerResult = new Label(playerWon ? "Congratulations! You won the league!" : "Better luck next season.");
+        playerResult.setStyle("-fx-font-size: 16px; -fx-text-fill: " + (playerWon ? "#2ecc71" : "#e94560") + ";");
+
+        champCard.getChildren().addAll(trophy, champTitle, champName, playerResult);
 
         // Final standings
         Label standingsTitle = new Label("Final Standings");
@@ -74,6 +89,8 @@ public class SeasonEndScreen {
 
         table.getColumns().addAll(nameCol, ptsCol, wCol, gdCol);
         table.getItems().addAll(standings);
+        // Apply themed CSS to the table
+        table.getStylesheets().add("data:text/css," + java.net.URLEncoder.encode(UIStyles.TABLE_CSS, java.nio.charset.StandardCharsets.UTF_8));
         // Buttons
         HBox btnBox = new HBox(16);
         btnBox.setAlignment(Pos.CENTER);
@@ -90,7 +107,7 @@ public class SeasonEndScreen {
 
         btnBox.getChildren().addAll(newSeasonBtn, quitBtn);
 
-        center.getChildren().addAll(champTitle, champName, playerResult, standingsTitle, table, btnBox);
+        center.getChildren().addAll(champCard, standingsTitle, table, btnBox);
         root.setCenter(center);
     }
 
