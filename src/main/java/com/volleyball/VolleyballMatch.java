@@ -41,12 +41,17 @@ public class VolleyballMatch extends AbstractMatch implements Serializable {
 
         double homeStrength = computeTeamStrength(homeTeam);
         double awayStrength = computeTeamStrength(awayTeam);
-        double total = homeStrength + awayStrength;
+
+        // Smooth out raw strength so a small gap doesn't lead to runaway sets.
+        // Using sqrt compresses differences and keeps rallies competitive.
+        double homeAdj = Math.sqrt(homeStrength);
+        double awayAdj = Math.sqrt(awayStrength);
+        double total = homeAdj + awayAdj;
 
         // simulate rallies until one team reaches pointsNeeded with 2 point lead
         while (true) {
             double roll = random.nextDouble() * total;
-            if (roll < homeStrength) {
+            if (roll < homeAdj) {
                 homeCurrentSetPoints++;
             } else {
                 awayCurrentSetPoints++;
@@ -78,28 +83,45 @@ public class VolleyballMatch extends AbstractMatch implements Serializable {
         }
     }
 
-    private double computeTeamStrength(ITeam team) {
+    private List<IPlayer> getEffectiveLineup(ITeam team) {
         List<IPlayer> lineup = team.getStartingLineup();
+        if (lineup != null && !lineup.isEmpty()) return lineup;
+        java.util.List<IPlayer> fallback = new java.util.ArrayList<>();
+        if (team.getSquad() != null) {
+            for (IPlayer p : team.getSquad()) {
+                if (p.isActive() && !p.isInjured()) fallback.add(p);
+                if (fallback.size() >= 6) break;
+            }
+        }
+        return fallback;
+    }
+
+    private double computeTeamStrength(ITeam team) {
+        List<IPlayer> lineup = getEffectiveLineup(team);
         if (lineup == null || lineup.isEmpty()) return 50;
 
         double total = 0;
+        int count = 0;
         for (IPlayer player : lineup) {
+            if (player.isInjured() || !player.isActive()) continue;
             if (player instanceof VolleyballPlayer) {
                 VolleyballPlayer vp = (VolleyballPlayer) player;
                 double effective = vp.getEffectiveOverall(player.getPosition());
                 double compatFactor = player.getTacticCompatibility() / 100.0;
                 double staminaFactor = player.getStamina() / 100.0;
-                total += effective * compatFactor * staminaFactor;
+                double modifier = 0.7 + 0.15 * compatFactor + 0.15 * staminaFactor;
+                total += effective * modifier;
+                count++;
             }
         }
-        return total / lineup.size();
+        return count == 0 ? 50 : total / count;
     }
 
     private void updateStaminaAfterSet(ITeam team) {
-        List<IPlayer> lineup = team.getStartingLineup();
+        List<IPlayer> lineup = getEffectiveLineup(team);
         if (lineup == null) return;
         for (IPlayer player : lineup) {
-            player.updateStamina(-10);
+            player.updateStamina(-3);
         }
     }
 
@@ -123,12 +145,12 @@ public class VolleyballMatch extends AbstractMatch implements Serializable {
 
     @Override
     public int getHomeScore() {
-        return homeSetsWon;
+        return 0;
     }
 
     @Override
     public int getAwayScore() {
-        return awaySetsWon;
+        return 0;
     }
 
     public int getHomeSetsWon() { return homeSetsWon; }

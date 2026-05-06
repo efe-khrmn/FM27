@@ -29,14 +29,9 @@ public class VolleyballTeam extends AbstractTeam implements Serializable {
         if (players.size() != 6) {
             throw new IllegalArgumentException("Starting lineup must have exactly 6 players.");
         }
-        boolean hasLibero = false;
         boolean hasSetter = false;
         for (IPlayer p : players) {
-            if (p.getPosition().equals("L")) hasLibero = true;
             if (p.getPosition().equals("S")) hasSetter = true;
-        }
-        if (!hasLibero) {
-            throw new IllegalArgumentException("Starting lineup must include a Libero.");
         }
         if (!hasSetter) {
             throw new IllegalArgumentException("Starting lineup must include a Setter.");
