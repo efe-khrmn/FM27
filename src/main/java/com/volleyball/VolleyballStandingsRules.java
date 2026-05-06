@@ -19,29 +19,19 @@ public class VolleyballStandingsRules implements IStandingsRules, Serializable {
     public int getPointsForLoss() { return 0; }
 
     @Override
-    public boolean hasOvertime() { return false; }
-
-    @Override
-    public boolean allowsDraw() { return false; }
-
-    /**
-     * Volleyball scoring:
-     *  3-0 / 3-1 → winner 3 pts, loser 0 pts
-     *  3-2      → winner 2 pts, loser 1 pt (tie-break)
-     */
-    @Override
-    public int[] computePoints(int homeSets, int awaySets) {
-        boolean tieBreak = (homeSets == 3 && awaySets == 2) || (awaySets == 3 && homeSets == 2);
-        if (homeSets > awaySets) {
-            int hp = tieBreak ? 2 : 3;
-            int ap = tieBreak ? 1 : 0;
-            return new int[]{hp, ap, 'W', 'L'};
-        } else {
-            int ap = tieBreak ? 2 : 3;
-            int hp = tieBreak ? 1 : 0;
-            return new int[]{hp, ap, 'L', 'W'};
-        }
+    public int getPointsForWin(int winnerSets, int loserSets) {
+        // 3-2 (tie-break) win → 2 points; 3-0 / 3-1 → 3 points
+        return loserSets >= 2 ? 2 : 3;
     }
+
+    @Override
+    public int getPointsForLoss(int winnerSets, int loserSets) {
+        // Loser of a tie-break (lost 2-3) gets 1 point
+        return loserSets >= 2 ? 1 : 0;
+    }
+
+    @Override
+    public boolean hasOvertime() { return false; } // sets handle tiebreaking
 
     @Override
     public Comparator<Object> getComparator() {
@@ -49,19 +39,23 @@ public class VolleyballStandingsRules implements IStandingsRules, Serializable {
             TeamStanding tsA = (TeamStanding) a;
             TeamStanding tsB = (TeamStanding) b;
 
+            // 1) Points
             if (tsB.getPoints() != tsA.getPoints()) {
                 return tsB.getPoints() - tsA.getPoints();
             }
 
+            // 2) Sets ratio (scored / conceded)
             double ratioA = tsA.getConceded() == 0 ? tsA.getScored() : (double) tsA.getScored() / tsA.getConceded();
             double ratioB = tsB.getConceded() == 0 ? tsB.getScored() : (double) tsB.getScored() / tsB.getConceded();
             double ratioDiff = ratioB - ratioA;
             if (ratioDiff != 0) return ratioDiff > 0 ? 1 : -1;
 
+            // 3) Sets won
             if (tsB.getScored() != tsA.getScored()) {
                 return tsB.getScored() - tsA.getScored();
             }
 
+            // 4) Coin toss
             return new Random().nextInt(3) - 1;
         };
     }

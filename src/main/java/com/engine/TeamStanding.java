@@ -28,17 +28,18 @@ public class TeamStanding implements Serializable {
 
     public void update(int goalsFor, int goalsAgainst, int pointsEarned) {
         update(goalsFor, goalsAgainst, pointsEarned,
-                goalsFor > goalsAgainst ? 'W' : (goalsFor == goalsAgainst ? 'D' : 'L'));
+                goalsFor > goalsAgainst, goalsFor == goalsAgainst);
     }
 
-    public void update(int goalsFor, int goalsAgainst, int pointsEarned, char result) {
+    public void update(int goalsFor, int goalsAgainst, int pointsEarned,
+                       boolean isWin, boolean isDraw) {
         this.played++;
         this.scored += goalsFor;
         this.conceded += goalsAgainst;
         this.points += pointsEarned;
 
-        if (result == 'W') won++;
-        else if (result == 'D') drawn++;
+        if (isWin) won++;
+        else if (isDraw) drawn++;
         else lost++;
     }
 

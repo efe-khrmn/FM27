@@ -145,12 +145,12 @@ public class VolleyballMatch extends AbstractMatch implements Serializable {
 
     @Override
     public int getHomeScore() {
-        return 0;
+        return homeSetsWon;
     }
 
     @Override
     public int getAwayScore() {
-        return 0;
+        return awaySetsWon;
     }
 
     public int getHomeSetsWon() { return homeSetsWon; }

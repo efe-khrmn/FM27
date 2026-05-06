@@ -9,19 +9,13 @@ public interface IStandingsRules {
     Comparator<Object> getComparator();
     String describeTiebreakers();
 
-    /**
-     * Returns [homePoints, awayPoints, homeResult, awayResult]
-     * where result chars 'W','D','L' encoded as int.
-     */
-    default int[] computePoints(int homeScore, int awayScore) {
-        if (homeScore > awayScore) {
-            return new int[]{getPointsForWin(), getPointsForLoss(), 'W', 'L'};
-        } else if (awayScore > homeScore) {
-            return new int[]{getPointsForLoss(), getPointsForWin(), 'L', 'W'};
-        } else {
-            return new int[]{getPointsForDraw(), getPointsForDraw(), 'D', 'D'};
-        }
+    // Score-aware points (used by sports like volleyball where the margin matters).
+    // Default implementations fall back to flat win/loss points.
+    default int getPointsForWin(int winnerScore, int loserScore) {
+        return getPointsForWin();
     }
-
-    default boolean allowsDraw() { return true; }
+    default int getPointsForLoss(int winnerScore, int loserScore) {
+        return getPointsForLoss();
+    }
 }
+
