@@ -111,7 +111,13 @@ public class LeagueTableScreen {
             }
         });
 
-        table.getColumns().addAll(rankCol, nameCol, pCol, wCol, dCol, lCol, gfCol, gaCol, gdCol, ptsCol);
+        boolean isVolleyball = "Volleyball".equalsIgnoreCase(
+                GameState.getInstance().getSport().getSportName());
+        if (isVolleyball) {
+            table.getColumns().addAll(rankCol, nameCol, pCol, wCol, lCol, gfCol, gaCol, gdCol, ptsCol);
+        } else {
+            table.getColumns().addAll(rankCol, nameCol, pCol, wCol, dCol, lCol, gfCol, gaCol, gdCol, ptsCol);
+        }
 
         List<TeamStanding> standings = GameState.getInstance().getLeague().getStandings();
         table.getItems().addAll(standings);

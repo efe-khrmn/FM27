@@ -78,45 +78,28 @@ public class VolleyballMatch extends AbstractMatch implements Serializable {
         }
     }
 
-    private List<IPlayer> getEffectiveLineup(ITeam team) {
-        List<IPlayer> lineup = team.getStartingLineup();
-        if (lineup != null && !lineup.isEmpty()) return lineup;
-        java.util.List<IPlayer> fallback = new java.util.ArrayList<>();
-        if (team.getSquad() != null) {
-            for (IPlayer p : team.getSquad()) {
-                if (p.isActive() && !p.isInjured()) fallback.add(p);
-                if (fallback.size() >= 6) break;
-            }
-        }
-        return fallback;
-    }
-
     private double computeTeamStrength(ITeam team) {
-        List<IPlayer> lineup = getEffectiveLineup(team);
+        List<IPlayer> lineup = team.getStartingLineup();
         if (lineup == null || lineup.isEmpty()) return 50;
 
         double total = 0;
-        int count = 0;
         for (IPlayer player : lineup) {
-            if (player.isInjured() || !player.isActive()) continue;
             if (player instanceof VolleyballPlayer) {
                 VolleyballPlayer vp = (VolleyballPlayer) player;
                 double effective = vp.getEffectiveOverall(player.getPosition());
                 double compatFactor = player.getTacticCompatibility() / 100.0;
                 double staminaFactor = player.getStamina() / 100.0;
-                double modifier = 0.7 + 0.15 * compatFactor + 0.15 * staminaFactor;
-                total += effective * modifier;
-                count++;
+                total += effective * compatFactor * staminaFactor;
             }
         }
-        return count == 0 ? 50 : total / count;
+        return total / lineup.size();
     }
 
     private void updateStaminaAfterSet(ITeam team) {
         List<IPlayer> lineup = team.getStartingLineup();
         if (lineup == null) return;
         for (IPlayer player : lineup) {
-            player.updateStamina(-3);
+            player.updateStamina(-10);
         }
     }
 
@@ -140,12 +123,12 @@ public class VolleyballMatch extends AbstractMatch implements Serializable {
 
     @Override
     public int getHomeScore() {
-        return 0;
+        return homeSetsWon;
     }
 
     @Override
     public int getAwayScore() {
-        return 0;
+        return awaySetsWon;
     }
 
     public int getHomeSetsWon() { return homeSetsWon; }

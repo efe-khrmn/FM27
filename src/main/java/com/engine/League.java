@@ -32,24 +32,17 @@ public class League implements Serializable {
 
     public void updateStandings(ITeam homeTeam, int homeGoals,
                                 ITeam awayTeam, int awayGoals) {
-        int homePoints, awayPoints;
-
-        if (homeGoals > awayGoals) {
-            homePoints = sport.getStandingsRules().getPointsForWin();
-            awayPoints = sport.getStandingsRules().getPointsForLoss();
-        } else if (awayGoals > homeGoals) {
-            homePoints = sport.getStandingsRules().getPointsForLoss();
-            awayPoints = sport.getStandingsRules().getPointsForWin();
-        } else {
-            homePoints = sport.getStandingsRules().getPointsForDraw();
-            awayPoints = sport.getStandingsRules().getPointsForDraw();
-        }
+        int[] pts = sport.getStandingsRules().computePoints(homeGoals, awayGoals);
+        int homePoints = pts[0];
+        int awayPoints = pts[1];
+        char homeRes = (char) pts[2];
+        char awayRes = (char) pts[3];
 
         for (TeamStanding ts : standings) {
             if (ts.getTeam().equals(homeTeam)) {
-                ts.update(homeGoals, awayGoals, homePoints);
+                ts.update(homeGoals, awayGoals, homePoints, homeRes);
             } else if (ts.getTeam().equals(awayTeam)) {
-                ts.update(awayGoals, homeGoals, awayPoints);
+                ts.update(awayGoals, homeGoals, awayPoints, awayRes);
             }
         }
     }

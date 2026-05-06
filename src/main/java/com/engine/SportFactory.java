@@ -14,7 +14,7 @@ public class SportFactory {
 
         return switch (sportName.toLowerCase()) {
             case "football" -> new FootballSport();
-            case "Volleyball" -> new VolleyballSport();
+            case "volleyball" -> new VolleyballSport();
             default -> throw new IllegalArgumentException("Unknown sport: " + sportName);
         };
     }
