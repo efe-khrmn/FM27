@@ -202,14 +202,14 @@ public class StartScreen {
                 "Balcova Servers", "Goztepe Hitters", "Karabaglar Liberos", "Menderes Nets"
         };
         String[] footballCoachNames = {
-                "Roberto Mancini", "Jose Mourinho", "Pep Guardiola", "Jurgen Klopp",
-                "Carlo Ancelotti", "Diego Simeone", "Antonio Conte", "Zinedine Zidane",
-                "Haciz Yıldırım", "Fatih Terim", "Senol Gunes", "Aykut Kocaman"
+                "Cinar Gedizlioglu", "Umut Ege Taner", "Turhan Tunali", "Roberto Mancini",
+                "Haciz Yıldırım", "Yusuf Murat Erten", "Ahmet Emre Yagci", "Fatih Terim",
+                "Kaya Oguz", "Ersun Yanal", "Senol Gunes", "Aykut Kocaman"
         };
         String[] volleyballCoachNames = {
                 "Giovanni Guidetti", "Daniele Santarelli", "Julio Velasco", "Ferhat Akbas",
                 "Marco Bonitta", "Stefano Lavarini", "Massimo Barbolini", "Zoran Terzic",
-                "Karch Kiraly", "Vital Heynen", "Andrea Anastasi", "Bernardinho Rezende"
+                "Karch Kiraly", "Efe Berk Dagli", "Andrea Anastasi", "Bernardinho Rezende"
         };
 
         String[] teamNames = sportName.equals("Football") ? footballTeamNames : volleyballTeamNames;
