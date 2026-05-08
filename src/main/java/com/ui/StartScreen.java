@@ -202,14 +202,14 @@ public class StartScreen {
                 "Balcova Servers", "Goztepe Hitters", "Karabaglar Liberos", "Menderes Nets"
         };
         String[] footballCoachNames = {
-                "Cinar Gedizlioglu", "Umut Ege Taner", "Turhan Tunali", "Roberto Mancini",
-                "Haciz Yıldırım", "Yusuf Murat Erten", "Ahmet Emre Yagci", "Fatih Terim",
-                "Kaya Oguz", "Ersun Yanal", "Senol Gunes", "Aykut Kocaman"
+                "Roberto Mancini", "Jose Mourinho", "Pep Guardiola", "Jurgen Klopp",
+                "Carlo Ancelotti", "Diego Simeone", "Antonio Conte", "Zinedine Zidane",
+                "Ertugrul Saglam", "Fatih Terim", "Senol Gunes", "Abdullah Avci"
         };
         String[] volleyballCoachNames = {
                 "Giovanni Guidetti", "Daniele Santarelli", "Julio Velasco", "Ferhat Akbas",
                 "Marco Bonitta", "Stefano Lavarini", "Massimo Barbolini", "Zoran Terzic",
-                "Karch Kiraly", "Efe Berk Dagli", "Andrea Anastasi", "Bernardinho Rezende"
+                "Karch Kiraly", "Vital Heynen", "Andrea Anastasi", "Bernardinho Rezende"
         };
 
         String[] teamNames = sportName.equals("Football") ? footballTeamNames : volleyballTeamNames;
@@ -236,7 +236,7 @@ public class StartScreen {
 
             for (int p = 0; p < squadSize; p++) {
                 String pos = positions.get(p % positions.size());
-                String playerName = PlayerLoader.getNext();
+                String playerName = PlayerLoader.getForTeam(t, p, squadSize);
                 int age = 18 + random.nextInt(18);
 
                 String group = getPositionGroup(pos);
@@ -283,6 +283,12 @@ public class StartScreen {
             }
 
             team.setTactic(createDefaultTactic(sportName));
+
+            // Auto-assign a starting lineup for AI (non-managed) teams so PreMatchScreen can show it.
+            if (!isManaged) {
+                assignAutoLineup(team, sportName);
+            }
+
             league.addTeam(team);
             if (isManaged) managedTeam = team;
         }
@@ -334,6 +340,45 @@ public class StartScreen {
             return new com.football.FootballTactic("4-4-2");
         } else {
             return new com.volleyball.VolleyballTactic("5-1");
+        }
+    }
+
+    /**
+     * Picks a sensible 11/6-player starting lineup for AI teams and stores it as their default lineup.
+     * Football: 1 GK + 10 outfield. Volleyball: 1 Setter + 5 others.
+     */
+    private void assignAutoLineup(ITeam team, String sportName) {
+        java.util.List<IPlayer> squad = new java.util.ArrayList<>(team.getSquad());
+        java.util.List<IPlayer> lineup = new java.util.ArrayList<>();
+
+        if (sportName.equals("Football")) {
+            for (IPlayer p : squad) {
+                if (lineup.size() < 1 && "GK".equalsIgnoreCase(p.getPosition())) lineup.add(p);
+            }
+            for (IPlayer p : squad) {
+                if (lineup.size() >= 11) break;
+                if (lineup.contains(p)) continue;
+                if ("GK".equalsIgnoreCase(p.getPosition())) continue;
+                lineup.add(p);
+            }
+            if (lineup.size() == 11 && team instanceof com.football.FootballTeam) {
+                ((com.football.FootballTeam) team).saveDefaultLineup(lineup);
+                try { team.setStartingLineup(lineup); } catch (Exception ignored) {}
+            }
+        } else {
+            for (IPlayer p : squad) {
+                if (lineup.size() < 1 && "S".equalsIgnoreCase(p.getPosition())) lineup.add(p);
+            }
+            for (IPlayer p : squad) {
+                if (lineup.size() >= 6) break;
+                if (lineup.contains(p)) continue;
+                if ("S".equalsIgnoreCase(p.getPosition())) continue;
+                lineup.add(p);
+            }
+            if (lineup.size() == 6 && team instanceof com.volleyball.VolleyballTeam) {
+                ((com.volleyball.VolleyballTeam) team).saveDefaultLineup(lineup);
+                try { team.setStartingLineup(lineup); } catch (Exception ignored) {}
+            }
         }
     }
 

@@ -4,14 +4,15 @@ import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 public class PlayerLoader {
 
-    private static List<String> names = new ArrayList<>();
+    private static final List<String> names = new ArrayList<>();
+    private static int cursor = 0;
 
     public static void load() {
+        if (!names.isEmpty()) return;
         try {
             InputStream is = PlayerLoader.class
                     .getClassLoader().getResourceAsStream("players.txt");
@@ -25,26 +26,34 @@ public class PlayerLoader {
                 if (!line.trim().isEmpty()) names.add(line.trim());
             }
             reader.close();
-            Collections.shuffle(names);
+            // NOTE: order preserved (no shuffle) so each team gets the same fixed 18 players every run.
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
+    /** Sequential fallback used if explicit team-slot mapping is not provided. */
     public static String getNext() {
         if (names.isEmpty()) load();
         if (names.isEmpty()) return "Player";
-        String name = names.remove(0);
-        // if running low, reload
-        if (names.size() < 10) {
-            load();
-            Collections.shuffle(names);
-        }
+        String name = names.get(cursor % names.size());
+        cursor++;
         return name;
     }
 
+    /**
+     * Deterministic mapping: team teamIndex (0-based) gets players
+     * [teamIndex*squadSize .. teamIndex*squadSize + squadSize).
+     */
+    public static String getForTeam(int teamIndex, int slot, int squadSize) {
+        if (names.isEmpty()) load();
+        if (names.isEmpty()) return "Player " + (teamIndex * squadSize + slot + 1);
+        int idx = (teamIndex * squadSize + slot) % names.size();
+        return names.get(idx);
+    }
+
     public static void reset() {
-        names.clear();
-        load();
+        cursor = 0;
+        if (names.isEmpty()) load();
     }
 }

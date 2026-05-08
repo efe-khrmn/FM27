@@ -198,7 +198,9 @@ public class PostMatchScreen {
             if ((f.getHomeTeam().equals(homeTeam) && f.getAwayTeam().equals(awayTeam)) ||
                     (f.getHomeTeam().equals(awayTeam) && f.getAwayTeam().equals(homeTeam))) {
                 league.updateStandings(homeTeam, homeScore, awayTeam, awayScore);
-                f.setResult(homeTeam.getName() + " " + homeScore + " - " + awayScore + " " + awayTeam.getName());
+                int fHome = f.getHomeTeam().equals(homeTeam) ? homeScore : awayScore;
+                int fAway = f.getHomeTeam().equals(homeTeam) ? awayScore : homeScore;
+                f.setResult(f.getHomeTeam().getName() + " " + fHome + " - " + fAway + " " + f.getAwayTeam().getName());
                 break;
             }
         }
