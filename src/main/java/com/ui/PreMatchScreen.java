@@ -97,9 +97,11 @@ public class PreMatchScreen {
             protected void updateItem(IPlayer item, boolean empty) {
                 super.updateItem(item, empty);
                 if (item != null) {
+                    String injMark = item.isInjured() ? "  🚑 SAKAT" : "";
                     setText("#" + item.getNumber() + " " + item.getName()
-                            + " [" + item.getPosition() + "]");
-                    setStyle("-fx-text-fill: white; -fx-background-color: transparent;");
+                            + " [" + item.getPosition() + "]" + injMark);
+                    setStyle((item.isInjured() ? "-fx-text-fill: #ff6b6b;" : "-fx-text-fill: white;")
+                            + " -fx-background-color: transparent;");
                 } else {
                     setText(null);
                 }
@@ -146,6 +148,18 @@ public class PreMatchScreen {
         startBtn.setOnAction(e -> {
             if (lineupList.getItems().size() != teamSize) {
                 showAlert("Please select exactly " + teamSize + " players.");
+                return;
+            }
+            StringBuilder injuredNames = new StringBuilder();
+            for (IPlayer p : lineupList.getItems()) {
+                if (p.isInjured()) {
+                    if (injuredNames.length() > 0) injuredNames.append(", ");
+                    injuredNames.append(p.getName());
+                }
+            }
+            if (injuredNames.length() > 0) {
+                showAlert("Sakat oyuncularla maça çıkamazsınız!\nSakat: " + injuredNames
+                        + "\nLütfen ilk 11'den çıkarıp yerine sağlıklı oyuncu ekleyin.");
                 return;
             }
             try {

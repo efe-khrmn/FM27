@@ -264,7 +264,8 @@ public class LineupScreen {
 
     private String playerLabel(IPlayer p, String pos) {
         double eff = effectiveAt(p, pos);
-        return "#" + p.getNumber() + " " + p.getName() + " [" + p.getPosition() + "] OVR " + Math.round(eff);
+        String injMark = p.isInjured() ? " 🚑 SAKAT" : "";
+        return "#" + p.getNumber() + " " + p.getName() + " [" + p.getPosition() + "] OVR " + Math.round(eff) + injMark;
     }
 
     private double effectiveAt(IPlayer p, String pos) {
@@ -315,6 +316,7 @@ public class LineupScreen {
             IPlayer best = null; double bestScore = -1;
             for (IPlayer p : availablePlayers) {
                 if (used.contains(p)) continue;
+                if (p.isInjured()) continue;
                 double s = effectiveAt(p, pos);
                 if (s > bestScore) { bestScore = s; best = p; }
             }
