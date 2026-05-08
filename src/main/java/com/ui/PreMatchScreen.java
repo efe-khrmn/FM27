@@ -97,7 +97,7 @@ public class PreMatchScreen {
             protected void updateItem(IPlayer item, boolean empty) {
                 super.updateItem(item, empty);
                 if (item != null) {
-                    String injMark = item.isInjured() ? "  🚑 SAKAT" : "";
+                    String injMark = item.isInjured() ? "  🚑 INJURED" : "";
                     setText("#" + item.getNumber() + " " + item.getName()
                             + " [" + item.getPosition() + "]" + injMark);
                     setStyle((item.isInjured() ? "-fx-text-fill: #ff6b6b;" : "-fx-text-fill: white;")
@@ -158,8 +158,8 @@ public class PreMatchScreen {
                 }
             }
             if (injuredNames.length() > 0) {
-                showAlert("Sakat oyuncularla maça çıkamazsınız!\nSakat: " + injuredNames
-                        + "\nLütfen ilk 11'den çıkarıp yerine sağlıklı oyuncu ekleyin.");
+                showAlert("You cannot start a match with injured players!\nInjured: " + injuredNames
+                        + "\nPlease remove them from the starting 11 and replace them with healthy players.");
                 return;
             }
             try {
