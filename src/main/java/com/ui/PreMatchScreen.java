@@ -30,8 +30,9 @@ public class PreMatchScreen {
         FOOTBALL_FORMATIONS.put("3-5-2", Arrays.asList("GK","CB","CB","CB","CDM","CM","CM","LW","ST","ST","RW"));
         FOOTBALL_FORMATIONS.put("5-3-2", Arrays.asList("GK","LB","CB","CB","CB","RB","CDM","CM","CAM","ST","ST"));
 
-        VOLLEYBALL_FORMATIONS.put("Standard 6", Arrays.asList("S","OH","OH","MB","MB","OPP"));
-        VOLLEYBALL_FORMATIONS.put("With Libero", Arrays.asList("S","OH","OH","MB","L","OPP"));
+        VOLLEYBALL_FORMATIONS.put("5-1", Arrays.asList("S","OH","OH","MB","MB","OPP"));
+        VOLLEYBALL_FORMATIONS.put("6-2", Arrays.asList("S","OH","OH","MB","MB","OPP"));
+        VOLLEYBALL_FORMATIONS.put("4-2", Arrays.asList("S","OH","OH","MB","L","OPP"));
     }
 
     public PreMatchScreen(ScreenManager manager) {

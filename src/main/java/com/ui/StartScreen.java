@@ -282,7 +282,13 @@ public class StartScreen {
                 addPlayerToTeam(team, player, sportName);
             }
 
-            team.setTactic(createRandomTactic(sportName, random));
+            // Managed team gets a random tactic; opponents get a random non-default tactic
+            // (forces visual variety so the pre-match screen doesn't show 4-4-2 for everyone).
+            if (isManaged) {
+                team.setTactic(createRandomTactic(sportName, random));
+            } else {
+                team.setTactic(createOpponentTactic(sportName, random, t));
+            }
 
             // Auto-assign a starting lineup for AI (non-managed) teams so PreMatchScreen can show it.
             if (!isManaged) {
@@ -350,6 +356,23 @@ public class StartScreen {
         } else {
             List<String> opts = Arrays.asList("5-1", "6-2", "4-2");
             return new com.volleyball.VolleyballTactic(opts.get(random.nextInt(opts.size())));
+        }
+    }
+
+    /**
+     * Picks a random tactic for opponent (AI) teams. Uses team index as part of the
+     * selection so different teams reliably get different formations instead of
+     * everyone defaulting to 4-4-2 by chance.
+     */
+    private ITactic createOpponentTactic(String sportName, Random random, int teamIndex) {
+        if (sportName.equals("Football")) {
+            List<String> opts = Arrays.asList("4-3-3", "3-5-2", "5-3-2", "4-4-2");
+            String name = opts.get((teamIndex + random.nextInt(opts.size())) % opts.size());
+            return new com.football.FootballTactic(name);
+        } else {
+            List<String> opts = Arrays.asList("5-1", "6-2", "4-2");
+            String name = opts.get((teamIndex + random.nextInt(opts.size())) % opts.size());
+            return new com.volleyball.VolleyballTactic(name);
         }
     }
 
