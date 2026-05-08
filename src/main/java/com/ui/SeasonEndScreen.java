@@ -67,30 +67,100 @@ public class SeasonEndScreen {
         standingsTitle.setStyle(UIStyles.SUBTITLE_STYLE);
 
         TableView<TeamStanding> table = new TableView<>();
-        table.setStyle(UIStyles.TABLE_STYLE);
+        table.getStylesheets().add(
+                "data:text/css," + UIStyles.TABLE_CSS.replace(" ", "%20")
+                        .replace("#", "%23").replace(":", "%3A").replace("{", "%7B")
+                        .replace("}", "%7D").replace(";", "%3B").replace(".", "%2E")
+                        .replace("(", "%28").replace(")", "%29").replace("'", "%27")
+        );
         table.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
-        table.setPrefHeight(300);
+        table.setPrefHeight(320);
 
+        // Rank
+        TableColumn<TeamStanding, Void> rankCol = new TableColumn<>("#");
+        rankCol.setMaxWidth(40);
+        rankCol.setCellFactory(col -> new TableCell<TeamStanding, Void>() {
+            @Override
+            protected void updateItem(Void item, boolean empty) {
+                super.updateItem(item, empty);
+                if (!empty) {
+                    setText(String.valueOf(getIndex() + 1));
+                    setStyle("-fx-text-fill: white; -fx-font-weight: bold; -fx-alignment: center;");
+                } else { setText(null); }
+            }
+        });
+
+        // Team name
         TableColumn<TeamStanding, String> nameCol = new TableColumn<>("Team");
         nameCol.setCellValueFactory(data ->
                 new javafx.beans.property.SimpleStringProperty(data.getValue().getTeam().getName()));
+        nameCol.setCellFactory(col -> new TableCell<TeamStanding, String>() {
+            @Override
+            protected void updateItem(String item, boolean empty) {
+                super.updateItem(item, empty);
+                if (item != null && !empty) {
+                    setText(item);
+                    setStyle("-fx-text-fill: white; -fx-font-size: 13px; -fx-font-weight: bold;");
+                } else { setText(null); }
+            }
+        });
 
-        TableColumn<TeamStanding, Integer> ptsCol = new TableColumn<>("Pts");
-        ptsCol.setCellValueFactory(data ->
-                new javafx.beans.property.SimpleIntegerProperty(data.getValue().getPoints()).asObject());
-
-        TableColumn<TeamStanding, Integer> wCol = new TableColumn<>("W");
-        wCol.setCellValueFactory(data ->
-                new javafx.beans.property.SimpleIntegerProperty(data.getValue().getWon()).asObject());
+        TableColumn<TeamStanding, Integer> pCol  = makeIntCol("P",  "played");
+        TableColumn<TeamStanding, Integer> wCol  = makeIntCol("W",  "won");
+        TableColumn<TeamStanding, Integer> dCol  = makeIntCol("D",  "drawn");
+        TableColumn<TeamStanding, Integer> lCol  = makeIntCol("L",  "lost");
+        TableColumn<TeamStanding, Integer> gfCol = makeIntCol("GF", "scored");
+        TableColumn<TeamStanding, Integer> gaCol = makeIntCol("GA", "conceded");
 
         TableColumn<TeamStanding, Integer> gdCol = new TableColumn<>("GD");
         gdCol.setCellValueFactory(data ->
                 new javafx.beans.property.SimpleIntegerProperty(data.getValue().getGoalDiff()).asObject());
+        gdCol.setMaxWidth(60);
+        gdCol.setCellFactory(col -> new TableCell<TeamStanding, Integer>() {
+            @Override
+            protected void updateItem(Integer item, boolean empty) {
+                super.updateItem(item, empty);
+                if (item != null && !empty) {
+                    setText(String.valueOf(item));
+                    setStyle("-fx-text-fill: white; -fx-alignment: center;");
+                } else { setText(null); }
+            }
+        });
 
-        table.getColumns().addAll(nameCol, ptsCol, wCol, gdCol);
+        TableColumn<TeamStanding, Integer> ptsCol = makeIntCol("Pts", "points");
+        ptsCol.setCellFactory(col -> new TableCell<TeamStanding, Integer>() {
+            @Override
+            protected void updateItem(Integer item, boolean empty) {
+                super.updateItem(item, empty);
+                if (item != null && !empty) {
+                    setText(String.valueOf(item));
+                    setStyle("-fx-text-fill: white; -fx-font-weight: bold; -fx-alignment: center;");
+                } else { setText(null); }
+            }
+        });
+
+        boolean isVolleyball = "Volleyball".equalsIgnoreCase(
+                GameState.getInstance().getSport().getSportName());
+        if (isVolleyball) {
+            table.getColumns().addAll(rankCol, nameCol, pCol, wCol, lCol, gfCol, gaCol, gdCol, ptsCol);
+        } else {
+            table.getColumns().addAll(rankCol, nameCol, pCol, wCol, dCol, lCol, gfCol, gaCol, gdCol, ptsCol);
+        }
+
         table.getItems().addAll(standings);
-        // Apply themed CSS to the table
-        table.getStylesheets().add("data:text/css," + java.net.URLEncoder.encode(UIStyles.TABLE_CSS, java.nio.charset.StandardCharsets.UTF_8));
+
+        // highlight managed team
+        table.setRowFactory(tv -> new TableRow<TeamStanding>() {
+            @Override
+            protected void updateItem(TeamStanding item, boolean empty) {
+                super.updateItem(item, empty);
+                if (item != null && item.getTeam().equals(GameState.getInstance().getManagedTeam())) {
+                    setStyle("-fx-background-color: #1a4a8a;");
+                } else {
+                    setStyle("");
+                }
+            }
+        });
         // Buttons
         HBox btnBox = new HBox(16);
         btnBox.setAlignment(Pos.CENTER);
@@ -109,6 +179,23 @@ public class SeasonEndScreen {
 
         center.getChildren().addAll(champCard, standingsTitle, table, btnBox);
         root.setCenter(center);
+    }
+
+    private TableColumn<TeamStanding, Integer> makeIntCol(String title, String property) {
+        TableColumn<TeamStanding, Integer> col = new TableColumn<>(title);
+        col.setCellValueFactory(new javafx.scene.control.cell.PropertyValueFactory<>(property));
+        col.setMaxWidth(60);
+        col.setCellFactory(c -> new TableCell<TeamStanding, Integer>() {
+            @Override
+            protected void updateItem(Integer item, boolean empty) {
+                super.updateItem(item, empty);
+                if (item != null && !empty) {
+                    setText(String.valueOf(item));
+                    setStyle("-fx-text-fill: white; -fx-alignment: center;");
+                } else { setText(null); }
+            }
+        });
+        return col;
     }
 
     private HBox buildNavBar() {

@@ -21,6 +21,7 @@ public class MatchScreen {
     private IMatch match;
     private ITeam homeTeam;
     private ITeam awayTeam;
+    private int printedEventCount = 0;
 
     public MatchScreen(ScreenManager manager) {
         this.manager = manager;
@@ -97,9 +98,10 @@ public class MatchScreen {
 
             StringBuilder sb = new StringBuilder(eventLog.getText());
             List<Object> events = match.getEvents();
-            for (int i = Math.max(0, events.size() - 10); i < events.size(); i++) {
+            for (int i = printedEventCount; i < events.size(); i++) {
                 sb.append(events.get(i).toString()).append("\n");
             }
+            printedEventCount = events.size();
             eventLog.setText(sb.toString());
 
             if (match.isFinished()) {

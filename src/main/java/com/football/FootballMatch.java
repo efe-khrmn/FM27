@@ -32,6 +32,8 @@ public class FootballMatch extends AbstractMatch implements Serializable {
         double total = homeStrength + awayStrength;
         if (total <= 0) total = 1;
 
+        // Collect goals scored this segment first, then assign sorted random minutes
+        List<Object[]> segmentGoals = new ArrayList<>(); // {team, scorerName}
         for (int i = 0; i < 5; i++) {
             double roll = random.nextDouble() * total;
             if (roll < homeStrength) {
@@ -39,20 +41,35 @@ public class FootballMatch extends AbstractMatch implements Serializable {
                     homeScore++;
                     IPlayer scorer = getRandomOutfieldPlayer(homeTeam);
                     String scorerName = scorer != null ? scorer.getName() : "Unknown";
-                    events.add("⚽ GOAL - " + homeTeam.getName()
-                            + " [" + scorerName + "] "
-                            + homeScore + "-" + awayScore);
+                    segmentGoals.add(new Object[]{homeTeam, scorerName, homeScore, awayScore});
                 }
             } else {
                 if (random.nextDouble() < 0.4) {
                     awayScore++;
                     IPlayer scorer = getRandomOutfieldPlayer(awayTeam);
                     String scorerName = scorer != null ? scorer.getName() : "Unknown";
-                    events.add("⚽ GOAL - " + awayTeam.getName()
-                            + " [" + scorerName + "] "
-                            + homeScore + "-" + awayScore);
+                    segmentGoals.add(new Object[]{awayTeam, scorerName, homeScore, awayScore});
                 }
             }
+        }
+
+        // Generate sorted random minutes within the segment's window (1-45 or 46-90)
+        int minMinute = (currentSegment - 1) * 45 + 1;
+        int maxMinute = currentSegment * 45;
+        List<Integer> minutes = new ArrayList<>();
+        for (int i = 0; i < segmentGoals.size(); i++) {
+            minutes.add(minMinute + random.nextInt(maxMinute - minMinute + 1));
+        }
+        java.util.Collections.sort(minutes);
+
+        for (int i = 0; i < segmentGoals.size(); i++) {
+            Object[] g = segmentGoals.get(i);
+            ITeam team = (ITeam) g[0];
+            String scorerName = (String) g[1];
+            int hs = (int) g[2];
+            int as = (int) g[3];
+            events.add(minutes.get(i) + "' ⚽ GOAL - " + team.getName()
+                    + " [" + scorerName + "] " + hs + "-" + as);
         }
 
         applyInjuries(homeTeam);
