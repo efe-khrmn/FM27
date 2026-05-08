@@ -46,16 +46,26 @@ public class MatchScreen {
         scoreBox.setAlignment(Pos.CENTER);
         scoreBox.setStyle(UIStyles.CARD_STYLE + " -fx-padding: 24;");
 
+        VBox homeBox = new VBox(4);
+        homeBox.setAlignment(Pos.CENTER);
         Label homeLabel = new Label(homeTeam.getName());
         homeLabel.setStyle("-fx-font-size: 20px; -fx-font-weight: bold; -fx-text-fill: white;");
+        Label homeCoachLabel = new Label(homeTeam.getCoach() != null ? "👔 " + homeTeam.getCoach().getName() : "");
+        homeCoachLabel.setStyle("-fx-font-size: 12px; -fx-text-fill: " + UIStyles.ACCENT_BLUE + ";");
+        homeBox.getChildren().addAll(homeLabel, homeCoachLabel);
 
         Label scoreLabel = new Label("0 - 0");
         scoreLabel.setStyle("-fx-font-size: 36px; -fx-font-weight: bold; -fx-text-fill: " + UIStyles.ACCENT_BLUE + ";");
 
+        VBox awayBox = new VBox(4);
+        awayBox.setAlignment(Pos.CENTER);
         Label awayLabel = new Label(awayTeam != null ? awayTeam.getName() : "TBD");
         awayLabel.setStyle("-fx-font-size: 20px; -fx-font-weight: bold; -fx-text-fill: white;");
+        Label awayCoachLabel = new Label(awayTeam != null && awayTeam.getCoach() != null ? "👔 " + awayTeam.getCoach().getName() : "");
+        awayCoachLabel.setStyle("-fx-font-size: 12px; -fx-text-fill: " + UIStyles.ACCENT_BLUE + ";");
+        awayBox.getChildren().addAll(awayLabel, awayCoachLabel);
 
-        scoreBox.getChildren().addAll(homeLabel, scoreLabel, awayLabel);
+        scoreBox.getChildren().addAll(homeBox, scoreLabel, awayBox);
 
         Label segmentLabel = new Label("Segment: 0 / " + GameState.getInstance().getSport().getSegmentCount());
         segmentLabel.setStyle(UIStyles.SUBTITLE_STYLE);
