@@ -108,8 +108,8 @@ public class PreMatchScreen {
                 }
             }
             if (injuredNames.length() > 0) {
-                showAlert("Sakat oyuncularla maça çıkamazsınız!\nSakat: " + injuredNames
-                        + "\nLütfen Lineup ekranından değiştirin.");
+                showAlert("You cannot start a match with injured players!\nInjured: " + injuredNames
+                        + "\nPlease change them from the Lineup screen.");
                 return;
             }
             try {
