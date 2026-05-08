@@ -282,7 +282,7 @@ public class StartScreen {
                 addPlayerToTeam(team, player, sportName);
             }
 
-            team.setTactic(createDefaultTactic(sportName));
+            team.setTactic(createRandomTactic(sportName, random));
 
             // Auto-assign a starting lineup for AI (non-managed) teams so PreMatchScreen can show it.
             if (!isManaged) {
@@ -340,6 +340,16 @@ public class StartScreen {
             return new com.football.FootballTactic("4-4-2");
         } else {
             return new com.volleyball.VolleyballTactic("5-1");
+        }
+    }
+
+    private ITactic createRandomTactic(String sportName, Random random) {
+        if (sportName.equals("Football")) {
+            List<String> opts = Arrays.asList("4-4-2", "4-3-3", "3-5-2", "5-3-2");
+            return new com.football.FootballTactic(opts.get(random.nextInt(opts.size())));
+        } else {
+            List<String> opts = Arrays.asList("5-1", "6-2", "4-2");
+            return new com.volleyball.VolleyballTactic(opts.get(random.nextInt(opts.size())));
         }
     }
 

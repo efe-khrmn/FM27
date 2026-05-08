@@ -55,7 +55,8 @@ public class PreMatchScreen {
         center.setPadding(new Insets(20));
         center.setAlignment(Pos.TOP_CENTER);
 
-        VBox leftPitch = buildPitchPanel(team, myLineup, true);
+        VBox leftPitchHolder = new VBox();
+        leftPitchHolder.getChildren().add(buildPitchPanel(team, myLineup, true));
         VBox rightPitch = buildPitchPanel(opponent, oppLineup, false);
 
         // Middle controls (tactic + start)
@@ -75,6 +76,19 @@ public class PreMatchScreen {
         }
         tacticBox.setStyle("-fx-background-color: #0f3460; -fx-text-fill: white;");
         tacticBox.setMinWidth(180);
+
+        // Live update of the pitch when the tactic selection changes
+        tacticBox.valueProperty().addListener((obs, oldVal, newVal) -> {
+            if (newVal == null || newVal.isEmpty()) return;
+            try {
+                if (team instanceof FootballTeam) {
+                    team.setTactic(new com.football.FootballTactic(newVal));
+                } else if (team instanceof VolleyballTeam) {
+                    team.setTactic(new com.volleyball.VolleyballTactic(newVal));
+                }
+            } catch (Exception ignored) { }
+            leftPitchHolder.getChildren().setAll(buildPitchPanel(team, myLineup, true));
+        });
 
         Button startBtn = new Button("Start Match");
         startBtn.setStyle(UIStyles.BTN_PRIMARY);
@@ -118,7 +132,7 @@ public class PreMatchScreen {
 
         midPanel.getChildren().addAll(tacticLabel, tacticBox, startBtn);
 
-        center.getChildren().addAll(leftPitch, midPanel, rightPitch);
+        center.getChildren().addAll(leftPitchHolder, midPanel, rightPitch);
         root.setCenter(center);
         root.setBottom(buildBackBtn());
     }
