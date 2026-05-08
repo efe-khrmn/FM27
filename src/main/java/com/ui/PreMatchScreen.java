@@ -16,7 +16,6 @@ public class PreMatchScreen {
 
     private ScreenManager manager;
     private BorderPane root;
-    private List<IPlayer> selectedLineup = new ArrayList<>();
 
     public PreMatchScreen(ScreenManager manager) {
         this.manager = manager;
@@ -30,89 +29,23 @@ public class PreMatchScreen {
 
         HBox center = new HBox(16);
         center.setPadding(new Insets(24));
+        center.setAlignment(Pos.TOP_CENTER);
 
         ITeam team = GameState.getInstance().getManagedTeam();
         ITeam opponent = findOpponent(team);
         int teamSize = GameState.getInstance().getSport().getTeamSize();
 
-        // Left — available players
-        VBox leftPanel = new VBox(12);
-        leftPanel.setStyle(UIStyles.CARD_STYLE);
-        leftPanel.setPrefWidth(380);
+        List<IPlayer> myLineup = getDefaultLineup(team);
 
-        Label availLabel = new Label("Available Players");
-        availLabel.setStyle(UIStyles.SUBTITLE_STYLE);
+        // Left — managed team lineup
+        VBox leftPanel = buildLineupPanel(team.getName() + " (You)", myLineup);
 
-        ListView<IPlayer> availList = new ListView<>();
-        availList.setStyle("-fx-background-color: #1a2a5e; -fx-text-fill: white;");
-        availList.setPrefHeight(400);
-        availList.getItems().addAll(team.getAvailablePlayers());
-        availList.setCellFactory(lv -> new ListCell<IPlayer>() {
-            @Override
-            protected void updateItem(IPlayer item, boolean empty) {
-                super.updateItem(item, empty);
-                if (item != null) {
-                    setText("#" + item.getNumber() + " " + item.getName()
-                            + " [" + item.getPosition() + "]");
-                    setStyle("-fx-text-fill: white; -fx-background-color: transparent;");
-                } else {
-                    setText(null);
-                }
-            }
-        });
-        Button addBtn = new Button("Add to Lineup →");
-        addBtn.setStyle(UIStyles.BTN_PRIMARY);
+        // Middle — tactic + start
+        VBox midPanel = new VBox(12);
+        midPanel.setStyle(UIStyles.CARD_STYLE);
+        midPanel.setPrefWidth(260);
+        midPanel.setAlignment(Pos.TOP_CENTER);
 
-        leftPanel.getChildren().addAll(availLabel, availList, addBtn);
-
-        // Right — selected lineup + tactic
-        VBox rightPanel = new VBox(12);
-        rightPanel.setStyle(UIStyles.CARD_STYLE);
-        rightPanel.setPrefWidth(380);
-
-        Label lineupLabel = new Label("Starting Lineup (0/" + teamSize + ")");
-        lineupLabel.setStyle(UIStyles.SUBTITLE_STYLE);
-
-        ListView<IPlayer> lineupList = new ListView<>();
-        // PreMatchScreen.build() içinde lineupList oluşturduktan sonra
-        ITeam team1 = GameState.getInstance().getManagedTeam();
-
-        // load default lineup if exists
-        if (team1 instanceof com.football.FootballTeam) {
-            com.football.FootballTeam ft = (com.football.FootballTeam) team;
-            if (ft.hasDefaultLineup()) {
-                lineupList.getItems().addAll(ft.getDefaultLineup());
-                lineupLabel.setText("Starting Lineup (" + lineupList.getItems().size() + "/" + teamSize + ")");
-            }
-        } else if (team instanceof com.volleyball.VolleyballTeam) {
-            com.volleyball.VolleyballTeam vt = (com.volleyball.VolleyballTeam) team;
-            if (vt.hasDefaultLineup()) {
-                lineupList.getItems().addAll(vt.getDefaultLineup());
-                lineupLabel.setText("Starting Lineup (" + lineupList.getItems().size() + "/" + teamSize + ")");
-            }
-        }
-        lineupList.setStyle("-fx-background-color: #1a2a5e; -fx-text-fill: white;");
-        lineupList.setPrefHeight(300);
-        lineupList.setCellFactory(lv -> new ListCell<IPlayer>() {
-            @Override
-            protected void updateItem(IPlayer item, boolean empty) {
-                super.updateItem(item, empty);
-                if (item != null) {
-                    String injMark = item.isInjured() ? "  🚑 SAKAT" : "";
-                    setText("#" + item.getNumber() + " " + item.getName()
-                            + " [" + item.getPosition() + "]" + injMark);
-                    setStyle((item.isInjured() ? "-fx-text-fill: #ff6b6b;" : "-fx-text-fill: white;")
-                            + " -fx-background-color: transparent;");
-                } else {
-                    setText(null);
-                }
-            }
-        });
-
-        Button removeBtn = new Button("← Remove");
-        removeBtn.setStyle(UIStyles.BTN_DANGER);
-
-        // Tactic selector
         Label tacticLabel = new Label("Select Tactic:");
         tacticLabel.setStyle(UIStyles.LABEL_STYLE);
 
@@ -129,30 +62,13 @@ public class PreMatchScreen {
         startBtn.setStyle(UIStyles.BTN_PRIMARY);
         startBtn.setMinWidth(200);
 
-        // Add button logic
-        addBtn.setOnAction(e -> {
-            IPlayer selected = availList.getSelectionModel().getSelectedItem();
-            if (selected != null && !lineupList.getItems().contains(selected)
-                    && lineupList.getItems().size() < teamSize) {
-                lineupList.getItems().add(selected);
-                lineupLabel.setText("Starting Lineup (" + lineupList.getItems().size() + "/" + teamSize + ")");
-            }
-        });
-
-        removeBtn.setOnAction(e -> {
-            IPlayer selected = lineupList.getSelectionModel().getSelectedItem();
-            if (selected != null) {
-                lineupList.getItems().remove(selected);
-                lineupLabel.setText("Starting Lineup (" + lineupList.getItems().size() + "/" + teamSize + ")");
-            }
-        });
         startBtn.setOnAction(e -> {
-            if (lineupList.getItems().size() != teamSize) {
-                showAlert("Please select exactly " + teamSize + " players.");
+            if (myLineup == null || myLineup.size() != teamSize) {
+                showAlert("Lineup is not set. Please set it from the Lineup screen (" + teamSize + " players required).");
                 return;
             }
             StringBuilder injuredNames = new StringBuilder();
-            for (IPlayer p : lineupList.getItems()) {
+            for (IPlayer p : myLineup) {
                 if (p.isInjured()) {
                     if (injuredNames.length() > 0) injuredNames.append(", ");
                     injuredNames.append(p.getName());
@@ -160,16 +76,15 @@ public class PreMatchScreen {
             }
             if (injuredNames.length() > 0) {
                 showAlert("Sakat oyuncularla maça çıkamazsınız!\nSakat: " + injuredNames
-                        + "\nLütfen ilk 11'den çıkarıp yerine sağlıklı oyuncu ekleyin.");
+                        + "\nLütfen Lineup ekranından değiştirin.");
                 return;
             }
             try {
-                team.setStartingLineup(new ArrayList<>(lineupList.getItems()));
+                team.setStartingLineup(new ArrayList<>(myLineup));
             } catch (IllegalArgumentException ex) {
                 showAlert(ex.getMessage());
                 return;
             }
-            // Apply selected tactic so the chosen formation isn't lost
             String chosenTactic = tacticBox.getValue();
             if (chosenTactic != null && !chosenTactic.isEmpty()) {
                 try {
@@ -183,56 +98,61 @@ public class PreMatchScreen {
             manager.showMatchScreen();
         });
 
-        rightPanel.getChildren().addAll(lineupLabel, lineupList, removeBtn, tacticLabel, tacticBox, startBtn);
+        midPanel.getChildren().addAll(tacticLabel, tacticBox, startBtn);
 
-        VBox opponentPanel = buildOpponentPanel(opponent);
+        // Right — opponent lineup
+        VBox rightPanel = buildLineupPanel(
+                opponent != null ? opponent.getName() : "Opponent",
+                opponent != null ? getDefaultLineup(opponent) : null);
 
-        center.getChildren().addAll(leftPanel, rightPanel, opponentPanel);
+        center.getChildren().addAll(leftPanel, midPanel, rightPanel);
         root.setCenter(center);
         root.setBottom(buildBackBtn());
     }
 
-    private VBox buildOpponentPanel(ITeam opponent) {
+    private VBox buildLineupPanel(String title, List<IPlayer> lineup) {
         VBox panel = new VBox(12);
         panel.setStyle(UIStyles.CARD_STYLE);
-        panel.setPrefWidth(320);
+        panel.setPrefWidth(340);
 
-        Label header = new Label("Opponent: " + (opponent != null ? opponent.getName() : "—"));
+        Label header = new Label(title);
         header.setStyle(UIStyles.SUBTITLE_STYLE);
 
-        ListView<IPlayer> oppList = new ListView<>();
-        oppList.setStyle("-fx-background-color: #1a2a5e; -fx-text-fill: white;");
-        oppList.setPrefHeight(520);
-        oppList.setFocusTraversable(false);
-        oppList.setMouseTransparent(true);
+        ListView<IPlayer> list = new ListView<>();
+        list.setStyle("-fx-background-color: #1a2a5e; -fx-text-fill: white;");
+        list.setPrefHeight(520);
+        list.setFocusTraversable(false);
+        list.setMouseTransparent(true);
+        if (lineup != null) list.getItems().addAll(lineup);
 
-        if (opponent != null) {
-            List<IPlayer> oppLineup = null;
-            if (opponent instanceof com.football.FootballTeam
-                    && ((com.football.FootballTeam) opponent).hasDefaultLineup()) {
-                oppLineup = ((com.football.FootballTeam) opponent).getDefaultLineup();
-            } else if (opponent instanceof com.volleyball.VolleyballTeam
-                    && ((com.volleyball.VolleyballTeam) opponent).hasDefaultLineup()) {
-                oppLineup = ((com.volleyball.VolleyballTeam) opponent).getDefaultLineup();
-            }
-            if (oppLineup != null) oppList.getItems().addAll(oppLineup);
-        }
-
-        oppList.setCellFactory(lv -> new ListCell<IPlayer>() {
+        list.setCellFactory(lv -> new ListCell<IPlayer>() {
             @Override
             protected void updateItem(IPlayer item, boolean empty) {
                 super.updateItem(item, empty);
                 if (item != null) {
-                    setText("#" + item.getNumber() + "  " + item.getName());
-                    setStyle("-fx-text-fill: white; -fx-background-color: transparent;");
+                    String injMark = item.isInjured() ? "  🚑" : "";
+                    setText("#" + item.getNumber() + "  " + item.getName() + injMark);
+                    setStyle((item.isInjured() ? "-fx-text-fill: #ff6b6b;" : "-fx-text-fill: white;")
+                            + " -fx-background-color: transparent;");
                 } else {
                     setText(null);
                 }
             }
         });
 
-        panel.getChildren().addAll(header, oppList);
+        panel.getChildren().addAll(header, list);
         return panel;
+    }
+
+    private List<IPlayer> getDefaultLineup(ITeam t) {
+        if (t instanceof com.football.FootballTeam) {
+            com.football.FootballTeam ft = (com.football.FootballTeam) t;
+            if (ft.hasDefaultLineup()) return ft.getDefaultLineup();
+        } else if (t instanceof com.volleyball.VolleyballTeam) {
+            com.volleyball.VolleyballTeam vt = (com.volleyball.VolleyballTeam) t;
+            if (vt.hasDefaultLineup()) return vt.getDefaultLineup();
+        }
+        return null;
     }
 
     private ITeam findOpponent(ITeam managedTeam) {
@@ -245,7 +165,6 @@ public class PreMatchScreen {
         }
         return null;
     }
-
 
     private void showAlert(String msg) {
         Alert alert = new Alert(Alert.AlertType.WARNING, msg, ButtonType.OK);
